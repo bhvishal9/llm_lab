@@ -18,3 +18,9 @@ llm-lab = "llm_lab:main"
 [build-system]
 requires = ["uv_build>=0.9.12,<0.10.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.0.1",
+]
