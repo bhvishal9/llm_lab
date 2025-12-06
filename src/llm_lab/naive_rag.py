@@ -1,16 +1,21 @@
-import math
 import sys
 import typer
 import json
 
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass
 from google import genai
-from google.genai import types
 from google.genai.errors import ClientError
-from typing import Sequence
 from llm_lab.chat import get_required_env, get_optional_env
+from llm_lab.rag_core import (
+    Chunk,
+    IndexedChunk,
+    load_indexed_chunks,
+    embed_text,
+    score_chunks,
+    build_prompt,
+    generate_response,
+)
 
 DEFAULT_DOCS_DIR = Path("assets/docs")
 DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
@@ -18,18 +23,6 @@ DEFAULT_EMBEDDING_MODEL_NAME = "gemini-embedding-001"
 DEFAULT_MODEL_NAME = "gemini-2.5-flash"
 
 app = typer.Typer()
-
-
-@dataclass
-class Chunk:
-    text: str
-    source: str
-
-
-@dataclass
-class IndexedChunk(Chunk):
-    embedding: list[float]
-    chunk_id: int
 
 
 def load_docs(dir_path: Path) -> list[Path]:
@@ -60,18 +53,6 @@ def create_chunks(file_content: str, file: Path) -> list[Chunk]:
     return chunks
 
 
-def embed_text(
-    client: genai.Client, text: str, embedding_model_name: str
-) -> list[float]:
-    """Embed text using a model."""
-    embedding = client.models.embed_content(
-        model=embedding_model_name,
-        contents=text,
-        config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY"),
-    )
-    return embedding.embeddings[0].values
-
-
 def save_indexed_chunks(
     indexed_chunks: list[IndexedChunk], file_path: Path, embedding_model_name: str
 ) -> None:
@@ -87,32 +68,6 @@ def save_indexed_chunks(
     )
 
 
-def load_indexed_chunks(file_path: Path) -> list[IndexedChunk]:
-    try:
-        file_content = file_path.read_text(encoding="utf-8").strip()
-    except FileNotFoundError as err:
-        raise ValueError(
-            f"File {file_path} not found, make sure to run the index command first"
-        ) from err
-
-    if not file_content:
-        raise ValueError(
-            f"File {file_path} is empty, make sure to run the index command first"
-        )
-
-    try:
-        data = json.loads(file_content)
-    except json.JSONDecodeError as err:
-        raise ValueError(f"File {file_path} is not a valid JSON file") from err
-
-    # Optional: validate structure
-    chunks_data = data.get("chunks")
-    if not isinstance(chunks_data, list):
-        raise ValueError(f"Invalid index format in {file_path}: 'chunks' missing")
-
-    return [IndexedChunk(**chunk) for chunk in chunks_data]
-
-
 def take_user_input() -> str:
     try:
         user_input = input("Enter the question:\n").strip()
@@ -121,59 +76,6 @@ def take_user_input() -> str:
     if not user_input:
         raise ValueError("User input is empty, exiting...")
     return user_input
-
-
-def cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float:
-    if len(a) != len(b):
-        raise ValueError("Embedding vectors must have the same length")
-
-    dot_product = sum(x * y for x, y in zip(a, b))
-    norm_a = math.sqrt(sum(x * x for x in a))
-    norm_b = math.sqrt(sum(y * y for y in b))
-
-    if norm_a == 0.0 or norm_b == 0.0:
-        # should not happen with real embeddings, but guard anyway
-        return 0.0
-
-    return dot_product / (norm_a * norm_b)
-
-
-def score_chunks(
-    query_embedding: list[float], indexed_chunks: list[IndexedChunk], top_k: int = 3
-) -> list[IndexedChunk]:
-    scored = []
-    for chunk in indexed_chunks:
-        score = cosine_similarity(query_embedding, chunk.embedding)
-        scored.append((score, chunk))
-
-    scored.sort(key=lambda pair: pair[0], reverse=True)
-    top_chunks = [chunk for score, chunk in scored[:top_k]]
-    return top_chunks
-
-
-def build_prompt(question: str, chunks: list[IndexedChunk]) -> str:
-    context_parts = []
-    for chunk in chunks:
-        context_parts.append(
-            f"Source: {chunk.source} (chunk {chunk.chunk_id})\n{chunk.text}"
-        )
-    context = "\n\n".join(context_parts)
-
-    prompt = (
-        "You are a helpful assistant. Use ONLY the context below to answer the question.\n\n"
-        f"Context:\n{context}\n\n"
-        f"Question: {question}\n"
-        "Answer:"
-    )
-    return prompt
-
-
-def generate_response(client: genai.Client, model_name: str, prompt: str) -> str:
-    response = client.models.generate_content(
-        model=model_name,
-        contents=prompt,
-    )
-    return response.text
 
 
 @app.command()

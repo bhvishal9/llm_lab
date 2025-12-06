@@ -1,7 +1,8 @@
-from datetime import datetime, timezone
 import json
 import time
 import logging
+
+from datetime import datetime, timezone
 
 from pydantic import BaseModel
 from fastapi import FastAPI, Request
