@@ -6,7 +6,6 @@ from datetime import datetime
 from pathlib import Path
 from google import genai
 from google.genai.errors import ClientError
-from llm_lab.chat import get_required_env, get_optional_env
 from llm_lab.rag_core import (
     Chunk,
     IndexedChunk,
@@ -15,6 +14,8 @@ from llm_lab.rag_core import (
     score_chunks,
     build_prompt,
     generate_response,
+    get_required_env,
+    get_optional_env,
 )
 
 DEFAULT_DOCS_DIR = Path("assets/docs")
@@ -26,7 +27,7 @@ app = typer.Typer()
 
 
 def load_docs(dir_path: Path) -> list[Path]:
-    """Load all markdown files from a directory."""
+    """Load all Markdown files from a directory."""
     if not dir_path.exists():
         raise ValueError(f"Directory {dir_path} does not exist")
     return list(dir_path.glob("**/*.md"))
@@ -118,10 +119,9 @@ def query():
     typer.echo("Loading the index...")
     api_key = get_required_env("LLM_API_KEY")
     model_name = get_optional_env("LLM_MODEL_NAME", DEFAULT_MODEL_NAME)
-    embedding_model_name = get_optional_env(
-        "LLM_EMBEDDING_MODEL_NAME", DEFAULT_EMBEDDING_MODEL_NAME
+    embedding_model_name, indexed_chunks = load_indexed_chunks(
+        DEFAULT_INDEXED_CHUNKS_FILE
     )
-    indexed_chunks = load_indexed_chunks(DEFAULT_INDEXED_CHUNKS_FILE)
     typer.echo("Index loaded successfully")
     client = genai.Client(api_key=api_key)
     query = take_user_input()

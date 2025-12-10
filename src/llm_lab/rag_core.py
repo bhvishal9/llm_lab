@@ -1,7 +1,8 @@
 import json
 import math
+import os
 
-from typing import Sequence
+from typing import Sequence, Tuple
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -21,6 +22,26 @@ class IndexedChunk(Chunk):
     chunk_id: int
 
 
+def get_required_env(name: str) -> str:
+    """Read, strip, and validate a required env var."""
+    raw = os.getenv(name)
+    if raw is None:
+        raise ValueError(f"Environment variable {name} not found")
+    value = raw.strip()
+    if not value:
+        raise ValueError(f"Environment variable {name} is empty")
+    return value
+
+
+def get_optional_env(name: str, default: str) -> str:
+    """Read, strip, and fall back to default if empty/whitespace."""
+    raw = os.getenv(name, default)
+    value = raw.strip()
+    if not value:
+        return default
+    return value
+
+
 def embed_text(
     client: genai.Client, text: str, embedding_model_name: str
 ) -> list[float]:
@@ -33,7 +54,7 @@ def embed_text(
     return embedding.embeddings[0].values
 
 
-def load_indexed_chunks(file_path: Path) -> list[IndexedChunk]:
+def load_indexed_chunks(file_path: Path) -> Tuple[str, list[IndexedChunk]]:
     """Load indexed chunks from a file."""
     try:
         file_content = file_path.read_text(encoding="utf-8").strip()
@@ -56,8 +77,11 @@ def load_indexed_chunks(file_path: Path) -> list[IndexedChunk]:
     chunks_data = data.get("chunks")
     if not isinstance(chunks_data, list):
         raise ValueError(f"Invalid index format in {file_path}: 'chunks' missing")
+    embedding_model_name = data.get("model_name")
+    if not isinstance(embedding_model_name, str):
+        raise ValueError(f"Invalid index format in {file_path}: 'model_name' missing")
 
-    return [IndexedChunk(**chunk) for chunk in chunks_data]
+    return embedding_model_name, [IndexedChunk(**chunk) for chunk in chunks_data]
 
 
 def cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float:

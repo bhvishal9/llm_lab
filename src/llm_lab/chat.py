@@ -1,35 +1,15 @@
-import os
 import sys
 
 from google.genai.errors import ClientError
 from dataclasses import dataclass
 from google import genai
+from llm_lab.rag_core import get_required_env, get_optional_env
 
 
 @dataclass
 class Config:
     api_key: str
     model_name: str
-
-
-def get_required_env(name: str) -> str:
-    """Read, strip, and validate a required env var."""
-    raw = os.getenv(name)
-    if raw is None:
-        raise ValueError(f"Environment variable {name} not found")
-    value = raw.strip()
-    if not value:
-        raise ValueError(f"Environment variable {name} is empty")
-    return value
-
-
-def get_optional_env(name: str, default: str) -> str:
-    """Read, strip, and fall back to default if empty/whitespace."""
-    raw = os.getenv(name, default)
-    value = raw.strip()
-    if not value:
-        return default
-    return value
 
 
 def load_config() -> Config:
