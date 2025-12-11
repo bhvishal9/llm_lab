@@ -59,7 +59,7 @@ def load_indexed_chunks(file_path: Path) -> Tuple[str, list[IndexedChunk]]:
     try:
         file_content = file_path.read_text(encoding="utf-8").strip()
     except FileNotFoundError as err:
-        raise ValueError(
+        raise FileNotFoundError(
             f"File {file_path} not found, make sure to run the index command first"
         ) from err
 
