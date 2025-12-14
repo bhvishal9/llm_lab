@@ -8,3 +8,8 @@ wheels/
 .idea
 # Virtual environments
 .venv
+
+
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
