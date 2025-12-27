@@ -7,9 +7,7 @@ WORKDIR /app
 EXPOSE 8000
 COPY --chown=llm_lab:llm_lab assets/indexed_chunks.json /app/assets/indexed_chunks.json
 COPY --chown=llm_lab:llm_lab pyproject.toml uv.lock /app/
-RUN --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+RUN uv sync --frozen --no-install-project
 COPY --chown=llm_lab:llm_lab src /app/src
 RUN uv sync --frozen
 ENTRYPOINT ["uv", "run", "uvicorn", "llm_lab.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
