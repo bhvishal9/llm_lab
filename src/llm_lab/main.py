@@ -1,26 +1,25 @@
 import json
-import time
 import logging
-
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Tuple
 
-from pydantic import BaseModel, ConfigDict, Field
-from google import genai
-from google.genai.errors import ClientError
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
+from google.genai.errors import ClientError
+from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import iterate_in_threadpool
+
+from llm_lab.config.settings import Settings, get_settings
+from llm_lab.llm.gemini_client import GeminiClient
+from llm_lab.llm.types import LlmClient
 from llm_lab.rag_core import (
     IndexedChunk,
-    load_indexed_chunks,
-    embed_text,
-    score_chunks,
     build_prompt,
-    generate_response,
+    load_indexed_chunks,
+    score_chunks,
 )
-from llm_lab.config.settings import get_settings
 
 DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
 
@@ -93,6 +92,14 @@ def build_response(
     )
 
 
+def get_llm_client(settings: Settings = Depends(get_settings)) -> LlmClient:
+    return GeminiClient(
+        api_key=settings.llm_api_key,
+        model=settings.llm_model,
+        embedding_model=settings.llm_embedding_model,
+    )
+
+
 @app.exception_handler(CustomException)
 async def custom_exception_handler(request: Request, exc: CustomException):
     return JSONResponse(
@@ -148,18 +155,19 @@ async def echo(body: EchoRequest) -> EchoRequest:
 
 
 @app.post("/query")
-async def query(body: QueryRequest) -> QueryResponse:
+async def query(
+    body: QueryRequest,
+    client: LlmClient = Depends(get_llm_client),
+) -> QueryResponse:
     validate_query_request(body)
     try:
-        settings = get_settings()
         embedding_model_name, indexed_chunks = load_indexed_data(
             DEFAULT_INDEXED_CHUNKS_FILE
         )
-        client = genai.Client(api_key=settings.llm_api_key)
-        query_embedding = embed_text(client, body.query, embedding_model_name)
+        query_embedding = client.embed_text(body.query, embedding_model_name)
         top_chunks = score_chunks(query_embedding, indexed_chunks, top_k=body.top_k)
         prompt = build_prompt(body.query, top_chunks)
-        response = generate_response(client, settings.llm_model, prompt)
+        response = client.generate_response(prompt)
     except ClientError as err:
         raise CustomException(status_code=502, message=str(err)) from err
     except (ValueError, FileNotFoundError) as err:

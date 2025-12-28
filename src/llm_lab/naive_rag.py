@@ -1,21 +1,21 @@
-import sys
-import typer
 import json
-
+import sys
 from datetime import datetime
 from pathlib import Path
-from google import genai
+
+import typer
 from google.genai.errors import ClientError
+
+from llm_lab.config.settings import Settings, get_settings
+from llm_lab.llm.gemini_client import GeminiClient
+from llm_lab.llm.types import LlmClient
 from llm_lab.rag_core import (
     Chunk,
     IndexedChunk,
-    load_indexed_chunks,
-    embed_text,
-    score_chunks,
     build_prompt,
-    generate_response,
+    load_indexed_chunks,
+    score_chunks,
 )
-from llm_lab.config.settings import get_settings
 
 DEFAULT_DOCS_DIR = Path("assets/docs")
 DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
@@ -76,13 +76,23 @@ def take_user_input() -> str:
     return user_input
 
 
+def create_llm_client(settings: Settings | None = None) -> LlmClient:
+    """Return a concrete LLM client based on settings."""
+    if settings is None:
+        settings = get_settings()
+
+    return GeminiClient(
+        api_key=settings.llm_api_key,
+        model=settings.llm_model,
+        embedding_model=settings.llm_embedding_model,
+    )
+
+
 @app.command()
 def index():
     typer.echo(f"Indexing directory: {DEFAULT_DOCS_DIR}")
     settings = get_settings()
-    api_key = settings.llm_api_key
-    embedding_model_name = settings.llm_embedding_model
-    client = genai.Client(api_key=api_key)
+    client = create_llm_client(settings)
     docs = load_docs(DEFAULT_DOCS_DIR)
     chunks, indexed_chunks = [], []
 
@@ -93,7 +103,7 @@ def index():
         file_chunks = create_chunks(file_content, doc)
         chunks.extend(file_chunks)
     for idx, chunk in enumerate(chunks):
-        embedding = embed_text(client, chunk.text, embedding_model_name)
+        embedding = client.embed_text(chunk.text)
         indexed_chunks.append(
             IndexedChunk(
                 text=chunk.text,
@@ -103,7 +113,7 @@ def index():
             )
         )
     save_indexed_chunks(
-        indexed_chunks, DEFAULT_INDEXED_CHUNKS_FILE, embedding_model_name
+        indexed_chunks, DEFAULT_INDEXED_CHUNKS_FILE, settings.llm_embedding_model
     )
     typer.echo(
         f"Indexed {len(docs)} documents into {len(indexed_chunks)} chunks, saved to {DEFAULT_INDEXED_CHUNKS_FILE}"
@@ -113,19 +123,16 @@ def index():
 @app.command()
 def query():
     typer.echo("Loading the index...")
-    settings = get_settings()
-    api_key = settings.llm_api_key
-    model_name = settings.llm_model_name
     embedding_model_name, indexed_chunks = load_indexed_chunks(
         DEFAULT_INDEXED_CHUNKS_FILE
     )
     typer.echo("Index loaded successfully")
-    client = genai.Client(api_key=api_key)
+    client = create_llm_client()
     query = take_user_input()
-    query_embedding = embed_text(client, query, embedding_model_name)
+    query_embedding = client.embed_text(query, embedding_model_name)
     top_chunks = score_chunks(query_embedding, indexed_chunks, top_k=3)
     prompt = build_prompt(query, top_chunks)
-    response = generate_response(client, model_name, prompt)
+    response = client.generate_response(prompt)
     typer.echo("\nSources used:")
     for chunk in top_chunks:
         typer.echo(f"- {chunk.source} (chunk {chunk.chunk_id})")
