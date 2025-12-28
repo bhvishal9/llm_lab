@@ -4,9 +4,15 @@ from datetime import datetime
 from pathlib import Path
 
 import typer
-from google.genai.errors import ClientError
 
 from llm_lab.config.settings import Settings, get_settings
+from llm_lab.llm.errors import (
+    LlmAuthenticationError,
+    LlmError,
+    LlmInvalidRequestError,
+    LlmRateLimitError,
+    LlmUnavailableError,
+)
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
 from llm_lab.rag_core import (
@@ -145,9 +151,21 @@ def main() -> int:
     except (ValueError, OSError) as err:
         typer.echo(f"Error: {err}", err=True)
         return 1
-    except ClientError as err:
-        typer.echo(f"LLM Client Error: {err}", err=True)
-        return 1
+    except LlmRateLimitError as err:
+        typer.echo(f"LLM Rate Limited Error: {err}", err=True)
+        return 2
+    except LlmAuthenticationError as err:
+        typer.echo(f"LLM Authentication Error: {err}", err=True)
+        return 3
+    except LlmInvalidRequestError as err:
+        typer.echo(f"LLM Invalid Request Error: {err}", err=True)
+        return 4
+    except LlmUnavailableError as err:
+        typer.echo(f"LLM Unavailable Error: {err}", err=True)
+        return 5
+    except LlmError as err:
+        typer.echo(f"LLM Error: {err}", err=True)
+        return 6
     return 0
 
 

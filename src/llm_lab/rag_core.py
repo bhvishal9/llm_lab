@@ -1,12 +1,8 @@
 import json
 import math
-
-from typing import Sequence, Tuple
-from pathlib import Path
 from dataclasses import dataclass
-
-from google import genai
-from google.genai import types
+from pathlib import Path
+from typing import Sequence, Tuple
 
 
 @dataclass
@@ -19,18 +15,6 @@ class Chunk:
 class IndexedChunk(Chunk):
     embedding: list[float]
     chunk_id: int
-
-
-def embed_text(
-    client: genai.Client, text: str, embedding_model_name: str
-) -> list[float]:
-    """Embed text using a model."""
-    embedding = client.models.embed_content(
-        model=embedding_model_name,
-        contents=text,
-        config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY"),
-    )
-    return embedding.embeddings[0].values
 
 
 def load_indexed_chunks(file_path: Path) -> Tuple[str, list[IndexedChunk]]:
@@ -109,12 +93,3 @@ def build_prompt(question: str, chunks: list[IndexedChunk]) -> str:
         "Answer:"
     )
     return prompt
-
-
-def generate_response(client: genai.Client, model_name: str, prompt: str) -> str:
-    """Generate a response from the LLM based on the prompt."""
-    response = client.models.generate_content(
-        model=model_name,
-        contents=prompt,
-    )
-    return response.text

@@ -7,11 +7,17 @@ from typing import List, Tuple
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
-from google.genai.errors import ClientError
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import iterate_in_threadpool
 
 from llm_lab.config.settings import Settings, get_settings
+from llm_lab.llm.errors import (
+    LlmAuthenticationError,
+    LlmError,
+    LlmInvalidRequestError,
+    LlmRateLimitError,
+    LlmUnavailableError,
+)
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
 from llm_lab.rag_core import (
@@ -108,6 +114,50 @@ async def custom_exception_handler(request: Request, exc: CustomException):
     )
 
 
+@app.exception_handler(LlmRateLimitError)
+async def llm_rate_limit_exception_handler(request: Request, exc: LlmRateLimitError):
+    return JSONResponse(
+        status_code=429,
+        content={"error": str(exc)},
+    )
+
+
+@app.exception_handler(LlmAuthenticationError)
+async def llm_authentication_exception_handler(
+    request: Request, exc: LlmAuthenticationError
+):
+    return JSONResponse(
+        status_code=502,
+        content={"error": str(exc)},
+    )
+
+
+@app.exception_handler(LlmInvalidRequestError)
+async def llm_invalid_request_exception_handler(
+    request: Request, exc: LlmInvalidRequestError
+):
+    return JSONResponse(
+        status_code=502,
+        content={"error": str(exc)},
+    )
+
+
+@app.exception_handler(LlmUnavailableError)
+async def llm_unavailable_exception_handler(request: Request, exc: LlmUnavailableError):
+    return JSONResponse(
+        status_code=502,
+        content={"error": str(exc)},
+    )
+
+
+@app.exception_handler(LlmError)
+async def llm_generic_error_exception_handler(request: Request, exc: LlmError):
+    return JSONResponse(
+        status_code=502,
+        content={"error": str(exc)},
+    )
+
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start_time = time.perf_counter()
@@ -168,8 +218,6 @@ async def query(
         top_chunks = score_chunks(query_embedding, indexed_chunks, top_k=body.top_k)
         prompt = build_prompt(body.query, top_chunks)
         response = client.generate_response(prompt)
-    except ClientError as err:
-        raise CustomException(status_code=502, message=str(err)) from err
     except (ValueError, FileNotFoundError) as err:
         raise CustomException(status_code=500, message=str(err)) from err
     return build_response(top_chunks, response)
