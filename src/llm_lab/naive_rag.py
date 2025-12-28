@@ -14,14 +14,11 @@ from llm_lab.rag_core import (
     score_chunks,
     build_prompt,
     generate_response,
-    get_required_env,
-    get_optional_env,
 )
+from llm_lab.config.settings import get_settings
 
 DEFAULT_DOCS_DIR = Path("assets/docs")
 DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
-DEFAULT_EMBEDDING_MODEL_NAME = "gemini-embedding-001"
-DEFAULT_MODEL_NAME = "gemini-2.5-flash"
 
 app = typer.Typer()
 
@@ -82,10 +79,9 @@ def take_user_input() -> str:
 @app.command()
 def index():
     typer.echo(f"Indexing directory: {DEFAULT_DOCS_DIR}")
-    api_key = get_required_env("LLM_API_KEY")
-    embedding_model_name = get_optional_env(
-        "LLM_EMBEDDING_MODEL_NAME", DEFAULT_EMBEDDING_MODEL_NAME
-    )
+    settings = get_settings()
+    api_key = settings.llm_api_key
+    embedding_model_name = settings.llm_embedding_model
     client = genai.Client(api_key=api_key)
     docs = load_docs(DEFAULT_DOCS_DIR)
     chunks, indexed_chunks = [], []
@@ -117,8 +113,9 @@ def index():
 @app.command()
 def query():
     typer.echo("Loading the index...")
-    api_key = get_required_env("LLM_API_KEY")
-    model_name = get_optional_env("LLM_MODEL_NAME", DEFAULT_MODEL_NAME)
+    settings = get_settings()
+    api_key = settings.llm_api_key
+    model_name = settings.llm_model_name
     embedding_model_name, indexed_chunks = load_indexed_chunks(
         DEFAULT_INDEXED_CHUNKS_FILE
     )

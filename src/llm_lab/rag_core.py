@@ -1,6 +1,5 @@
 import json
 import math
-import os
 
 from typing import Sequence, Tuple
 from pathlib import Path
@@ -20,26 +19,6 @@ class Chunk:
 class IndexedChunk(Chunk):
     embedding: list[float]
     chunk_id: int
-
-
-def get_required_env(name: str) -> str:
-    """Read, strip, and validate a required env var."""
-    raw = os.getenv(name)
-    if raw is None:
-        raise ValueError(f"Environment variable {name} not found")
-    value = raw.strip()
-    if not value:
-        raise ValueError(f"Environment variable {name} is empty")
-    return value
-
-
-def get_optional_env(name: str, default: str) -> str:
-    """Read, strip, and fall back to default if empty/whitespace."""
-    raw = os.getenv(name, default)
-    value = raw.strip()
-    if not value:
-        return default
-    return value
 
 
 def embed_text(

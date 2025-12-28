@@ -19,12 +19,10 @@ from llm_lab.rag_core import (
     score_chunks,
     build_prompt,
     generate_response,
-    get_optional_env,
-    get_required_env,
 )
+from llm_lab.config.settings import get_settings
 
 DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
-DEFAULT_LLM_MODEL_NAME = "gemini-2.5-flash"
 
 
 class CustomException(Exception):
@@ -153,16 +151,15 @@ async def echo(body: EchoRequest) -> EchoRequest:
 async def query(body: QueryRequest) -> QueryResponse:
     validate_query_request(body)
     try:
+        settings = get_settings()
         embedding_model_name, indexed_chunks = load_indexed_data(
             DEFAULT_INDEXED_CHUNKS_FILE
         )
-        client = genai.Client(api_key=get_required_env("LLM_API_KEY"))
+        client = genai.Client(api_key=settings.llm_api_key)
         query_embedding = embed_text(client, body.query, embedding_model_name)
         top_chunks = score_chunks(query_embedding, indexed_chunks, top_k=body.top_k)
         prompt = build_prompt(body.query, top_chunks)
-        response = generate_response(
-            client, get_optional_env("LLM_MODEL_NAME", DEFAULT_LLM_MODEL_NAME), prompt
-        )
+        response = generate_response(client, settings.llm_model, prompt)
     except ClientError as err:
         raise CustomException(status_code=502, message=str(err)) from err
     except (ValueError, FileNotFoundError) as err:
