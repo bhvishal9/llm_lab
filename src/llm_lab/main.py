@@ -3,7 +3,7 @@ import logging
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -20,12 +20,9 @@ from llm_lab.llm.errors import (
 )
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
-from llm_lab.rag_core import (
-    IndexedChunk,
-    build_prompt,
-    load_indexed_chunks,
-    score_chunks,
-)
+from llm_lab.rag_core import build_prompt
+from llm_lab.retrieval.retriever import Retriever
+from llm_lab.retrieval.types import IndexedChunk
 
 DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
 
@@ -76,13 +73,6 @@ def validate_query_request(request: QueryRequest) -> None:
         )
     if request.top_k < 1 or request.top_k > 10:
         raise CustomException(status_code=400, message="top_k must be between 1 and 10")
-
-
-def load_indexed_data(file_path: Path) -> Tuple[str, list[IndexedChunk]]:
-    try:
-        return load_indexed_chunks(file_path)
-    except (ValueError, FileNotFoundError) as err:
-        raise CustomException(status_code=500, message=str(err)) from err
 
 
 def build_response(
@@ -211,11 +201,11 @@ async def query(
 ) -> QueryResponse:
     validate_query_request(body)
     try:
-        embedding_model_name, indexed_chunks = load_indexed_data(
-            DEFAULT_INDEXED_CHUNKS_FILE
+        scoring = Retriever(
+            client, body.query, DEFAULT_INDEXED_CHUNKS_FILE, top_k=body.top_k
         )
-        query_embedding = client.embed_text(body.query, embedding_model_name)
-        top_chunks = score_chunks(query_embedding, indexed_chunks, top_k=body.top_k)
+        embedding_model_name, indexed_chunks = scoring.load_indexed_chunks()
+        top_chunks = scoring.score_chunks(embedding_model_name, indexed_chunks)
         prompt = build_prompt(body.query, top_chunks)
         response = client.generate_response(prompt)
     except (ValueError, FileNotFoundError) as err:

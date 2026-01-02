@@ -1,6 +1,4 @@
-import json
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import typer
@@ -15,61 +13,14 @@ from llm_lab.llm.errors import (
 )
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
-from llm_lab.rag_core import (
-    Chunk,
-    IndexedChunk,
-    build_prompt,
-    load_indexed_chunks,
-    score_chunks,
-)
+from llm_lab.rag_core import build_prompt
+from llm_lab.retrieval.indexing import Indexer
+from llm_lab.retrieval.retriever import Retriever
 
 DEFAULT_DOCS_DIR = Path("assets/docs")
 DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
 
 app = typer.Typer()
-
-
-def load_docs(dir_path: Path) -> list[Path]:
-    """Load all Markdown files from a directory."""
-    if not dir_path.exists():
-        raise ValueError(f"Directory {dir_path} does not exist")
-    return list(dir_path.glob("**/*.md"))
-
-
-def read_file(file_path: Path) -> str:
-    """Read a file and return its content."""
-    try:
-        file_content = file_path.read_text(encoding="utf-8").strip()
-    except FileNotFoundError:
-        raise ValueError(f"File {file_path} not found")
-    if not file_content:
-        raise ValueError(f"File {file_path} is empty")
-    return file_content
-
-
-def create_chunks(file_content: str, file: Path) -> list[Chunk]:
-    """Create chunks from a file content."""
-    chunks = []
-    for chunk in file_content.split("\n\n"):
-        if not chunk.strip():
-            continue
-        chunks.append(Chunk(chunk.strip(), str(file)))
-    return chunks
-
-
-def save_indexed_chunks(
-    indexed_chunks: list[IndexedChunk], file_path: Path, embedding_model_name: str
-) -> None:
-    """Save indexed chunks to a file."""
-    file_path.write_text(
-        json.dumps(
-            {
-                "model_name": embedding_model_name,
-                "created_at": datetime.now().isoformat(),
-                "chunks": [chunk.__dict__ for chunk in indexed_chunks],
-            }
-        )
-    )
 
 
 def take_user_input() -> str:
@@ -99,28 +50,14 @@ def index():
     typer.echo(f"Indexing directory: {DEFAULT_DOCS_DIR}")
     settings = get_settings()
     client = create_llm_client(settings)
-    docs = load_docs(DEFAULT_DOCS_DIR)
-    chunks, indexed_chunks = [], []
-
-    if not docs:
-        raise ValueError(f"No markdown files found in {DEFAULT_DOCS_DIR}")
-    for doc in docs:
-        file_content = read_file(doc)
-        file_chunks = create_chunks(file_content, doc)
-        chunks.extend(file_chunks)
-    for idx, chunk in enumerate(chunks):
-        embedding = client.embed_text(chunk.text)
-        indexed_chunks.append(
-            IndexedChunk(
-                text=chunk.text,
-                source=chunk.source,
-                embedding=embedding,
-                chunk_id=idx,
-            )
-        )
-    save_indexed_chunks(
-        indexed_chunks, DEFAULT_INDEXED_CHUNKS_FILE, settings.llm_embedding_model
+    indexer = Indexer(
+        source_dir=DEFAULT_DOCS_DIR,
+        dest_file=DEFAULT_INDEXED_CHUNKS_FILE,
+        embedding_model=settings.llm_embedding_model,
     )
+    docs = indexer.load_docs()
+    indexed_chunks = indexer.build_index(client, docs)
+    indexer.save_indexed_chunks(indexed_chunks)
     typer.echo(
         f"Indexed {len(docs)} documents into {len(indexed_chunks)} chunks, saved to {DEFAULT_INDEXED_CHUNKS_FILE}"
     )
@@ -129,15 +66,12 @@ def index():
 @app.command()
 def query():
     typer.echo("Loading the index...")
-    embedding_model_name, indexed_chunks = load_indexed_chunks(
-        DEFAULT_INDEXED_CHUNKS_FILE
-    )
-    typer.echo("Index loaded successfully")
     client = create_llm_client()
-    query = take_user_input()
-    query_embedding = client.embed_text(query, embedding_model_name)
-    top_chunks = score_chunks(query_embedding, indexed_chunks, top_k=3)
-    prompt = build_prompt(query, top_chunks)
+    query_text = take_user_input()
+    scoring = Retriever(client, query_text, DEFAULT_INDEXED_CHUNKS_FILE, top_k=3)
+    embedding_model_name, indexed_chunks = scoring.load_indexed_chunks()
+    top_chunks = scoring.score_chunks(embedding_model_name, indexed_chunks)
+    prompt = build_prompt(query_text, top_chunks)
     response = client.generate_response(prompt)
     typer.echo("\nSources used:")
     for chunk in top_chunks:
