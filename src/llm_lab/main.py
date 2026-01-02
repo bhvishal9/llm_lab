@@ -1,14 +1,9 @@
-import json
-import logging
-import time
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
-from starlette.concurrency import iterate_in_threadpool
 
 from llm_lab.config.settings import Settings, get_settings
 from llm_lab.llm.errors import (
@@ -20,6 +15,7 @@ from llm_lab.llm.errors import (
 )
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
+from llm_lab.observability.logging import log_http_requests
 from llm_lab.rag_core import build_prompt
 from llm_lab.retrieval.retriever import Retriever
 from llm_lab.retrieval.types import IndexedChunk
@@ -53,14 +49,6 @@ class QueryResponse(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, frozen=True)
     answer: str
     sources: List[SourceChunk]
-
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-)
-
-logger = logging.getLogger(__name__)
 
 
 app = FastAPI(title="llm_lab", version="0.0.1")
@@ -148,40 +136,7 @@ async def llm_generic_error_exception_handler(request: Request, exc: LlmError):
     )
 
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    start_time = time.perf_counter()
-    response = await call_next(request)
-    duration_ms = (time.perf_counter() - start_time) * 1000
-
-    log_payload = {
-        "ts": datetime.now(timezone.utc).isoformat(),
-        "logger": logger.name,
-        "method": request.method,
-        "path": request.url.path,
-        "status": response.status_code,
-        "duration_ms": round(duration_ms, 3),
-    }
-
-    if response.status_code >= 400:
-        error_message = None
-        try:
-            response_body = [section async for section in response.body_iterator]
-            response.body_iterator = iterate_in_threadpool(iter(response_body))
-
-            body_content = b"".join(response_body).decode()
-            if body_content:
-                error_message = json.loads(body_content).get("error")
-        except Exception:
-            pass
-        log_payload["level"] = "ERROR"
-        if error_message:
-            log_payload["error"] = error_message
-    else:
-        log_payload["level"] = "INFO"
-
-    logger.info(json.dumps(log_payload))
-    return response
+app.middleware("http")(log_http_requests)
 
 
 @app.get("/health")
