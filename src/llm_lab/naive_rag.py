@@ -1,8 +1,8 @@
 import sys
-from pathlib import Path
 
 import typer
 
+from llm_lab.config.paths import DEFAULT_DOCS_DIR, DEFAULT_INDEXED_CHUNKS_FILE
 from llm_lab.config.settings import Settings, get_settings
 from llm_lab.llm.errors import (
     LlmAuthenticationError,
@@ -16,9 +16,6 @@ from llm_lab.llm.types import LlmClient
 from llm_lab.rag_core import build_prompt
 from llm_lab.retrieval.indexing import Indexer
 from llm_lab.retrieval.retriever import Retriever
-
-DEFAULT_DOCS_DIR = Path("assets/docs")
-DEFAULT_INDEXED_CHUNKS_FILE = Path("assets/indexed_chunks.json")
 
 app = typer.Typer()
 
