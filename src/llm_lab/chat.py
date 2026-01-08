@@ -1,28 +1,16 @@
 import sys
 
-from google.genai.errors import ClientError
-from dataclasses import dataclass
-from google import genai
-from llm_lab.rag_core import get_required_env, get_optional_env
-
-
-@dataclass
-class Config:
-    api_key: str
-    model_name: str
-
-
-def load_config() -> Config:
-    api_key = get_required_env("LLM_API_KEY")
-    model_name = get_optional_env("LLM_MODEL_NAME", "gemini-2.5-flash")
-    return Config(api_key=api_key, model_name=model_name)
+from llm_lab.config.settings import get_settings
+from llm_lab.llm.errors import LlmError
+from llm_lab.llm.gemini_client import GeminiClient
+from llm_lab.llm.types import LlmClient
 
 
 def print_exit() -> None:
     print("\nGoodbye!")
 
 
-def chat_loop(client: genai.Client, config: Config) -> None:
+def chat_loop(client: LlmClient) -> None:
     print("Welcome to the chat! Type '/exit' to quit.\n")
     while True:
         try:
@@ -35,21 +23,23 @@ def chat_loop(client: genai.Client, config: Config) -> None:
             return
         if not user_input:
             continue
-        response = client.models.generate_content(
-            model=config.model_name, contents=user_input
-        )
-        print(f"[Gemini]: {response.text}")
+        response = client.generate_response(user_input)
+        print(f"[Gemini]: {response}")
 
 
 def main() -> int:
     try:
-        config = load_config()
-        client = genai.Client(api_key=config.api_key)
-        chat_loop(client, config)
+        settings = get_settings()
+        client = GeminiClient(
+            api_key=settings.llm_api_key,
+            model=settings.llm_model,
+            embedding_model=settings.llm_embedding_model,
+        )
+        chat_loop(client)
     except ValueError as err:
         print(f"Config Error: {err}")
         return 1
-    except ClientError as err:
+    except LlmError as err:
         print(f"LLM Client Error: {err}")
         return 1
     return 0
