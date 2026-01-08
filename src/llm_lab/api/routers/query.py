@@ -3,12 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field
 
-from llm_lab.api.dependencies import get_llm_client
+from llm_lab.api.dependencies import get_rag_service
 from llm_lab.api.exceptions import CustomException
-from llm_lab.config.paths import DEFAULT_INDEXED_CHUNKS_FILE
-from llm_lab.llm.types import LlmClient
-from llm_lab.rag_core import build_prompt
-from llm_lab.retrieval.retriever import Retriever
+from llm_lab.core.rag_service import RagService
 from llm_lab.retrieval.types import IndexedChunk
 
 
@@ -57,17 +54,14 @@ def build_response(
 @router.post("/query")
 async def query(
     body: QueryRequest,
-    client: LlmClient = Depends(get_llm_client),
+    rag: RagService = Depends(get_rag_service),
 ) -> QueryResponse:
     validate_query_request(body)
     try:
-        scoring = Retriever(
-            client, body.query, DEFAULT_INDEXED_CHUNKS_FILE, top_k=body.top_k
+        response, top_chunks = rag.answer_question(
+            query=body.query,
+            top_k=body.top_k,
         )
-        embedding_model_name, indexed_chunks = scoring.load_indexed_chunks()
-        top_chunks = scoring.score_chunks(embedding_model_name, indexed_chunks)
-        prompt = build_prompt(body.query, top_chunks)
-        response = client.generate_response(prompt)
     except (ValueError, FileNotFoundError) as err:
         raise CustomException(status_code=500, message=str(err)) from err
     return build_response(top_chunks, response)

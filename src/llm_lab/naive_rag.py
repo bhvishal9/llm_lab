@@ -4,6 +4,7 @@ import typer
 
 from llm_lab.config.paths import DEFAULT_DOCS_DIR, DEFAULT_INDEXED_CHUNKS_FILE
 from llm_lab.config.settings import Settings, get_settings
+from llm_lab.core.rag_service import RagService
 from llm_lab.llm.errors import (
     LlmAuthenticationError,
     LlmError,
@@ -13,9 +14,7 @@ from llm_lab.llm.errors import (
 )
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
-from llm_lab.rag_core import build_prompt
 from llm_lab.retrieval.indexing import Indexer
-from llm_lab.retrieval.retriever import Retriever
 
 app = typer.Typer()
 
@@ -65,11 +64,11 @@ def query():
     typer.echo("Loading the index...")
     client = create_llm_client()
     query_text = take_user_input()
-    scoring = Retriever(client, query_text, DEFAULT_INDEXED_CHUNKS_FILE, top_k=3)
-    embedding_model_name, indexed_chunks = scoring.load_indexed_chunks()
-    top_chunks = scoring.score_chunks(embedding_model_name, indexed_chunks)
-    prompt = build_prompt(query_text, top_chunks)
-    response = client.generate_response(prompt)
+    rag_service = RagService(client, DEFAULT_INDEXED_CHUNKS_FILE)
+    response, top_chunks = rag_service.answer_question(
+        query=query_text,
+        top_k=3,
+    )
     typer.echo("\nSources used:")
     for chunk in top_chunks:
         typer.echo(f"- {chunk.source} (chunk {chunk.chunk_id})")
