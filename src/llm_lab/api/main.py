@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from llm_lab.api.exceptions import CustomException
 from llm_lab.api.routers import echo, health, query
 from llm_lab.llm.errors import (
     LlmAuthenticationError,
@@ -10,8 +11,6 @@ from llm_lab.llm.errors import (
     LlmUnavailableError,
 )
 from llm_lab.observability.logging import log_http_requests
-
-from .exceptions import CustomException
 
 app = FastAPI(title="llm_lab", version="0.0.1")
 
