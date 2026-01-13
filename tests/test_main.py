@@ -36,12 +36,14 @@ def test_query_happy_path(monkeypatch) -> None:
             source="assets/docs/kubernetes_intro.md",
             embedding=[1.0, 0.0],
             chunk_id=0,
+            doc_path="assets/docs/kubernetes_intro.md",
         ),
         IndexedChunk(
             text="Some other chunk",
             source="assets/docs/other.md",
             embedding=[0.0, 1.0],
             chunk_id=1,
+            doc_path="assets/docs/other.md",
         ),
     ]
 

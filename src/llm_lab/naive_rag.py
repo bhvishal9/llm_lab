@@ -1,8 +1,14 @@
 import sys
+from pathlib import Path
+from typing import Annotated
 
 import typer
 
-from llm_lab.config.paths import DEFAULT_DOCS_DIR, DEFAULT_INDEXED_CHUNKS_FILE
+from llm_lab.config.paths import (
+    DEFAULT_DESTINATION_DIR,
+    DEFAULT_DOCS_DIR,
+    DEFAULT_INDEXED_CHUNKS_FILE,
+)
 from llm_lab.config.settings import Settings, get_settings
 from llm_lab.core.rag_service import RagService
 from llm_lab.llm.errors import (
@@ -17,6 +23,8 @@ from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.indexing import Indexer
 
 app = typer.Typer()
+
+DEFAULT_MAX_CHUNKS_PER_FILE = 1000
 
 
 def take_user_input() -> str:
@@ -42,20 +50,33 @@ def create_llm_client(settings: Settings | None = None) -> LlmClient:
 
 
 @app.command()
-def index():
-    typer.echo(f"Indexing directory: {DEFAULT_DOCS_DIR}")
+def index(
+    dataset: Annotated[str, typer.Option(help="Dataset to index")],
+    source_dir: Annotated[
+        Path, typer.Option(help="Source directory")
+    ] = DEFAULT_DOCS_DIR,
+    dest_dir: Annotated[
+        Path, typer.Option(help="Destination directory")
+    ] = DEFAULT_DESTINATION_DIR,
+    max_chunks_per_index: Annotated[
+        int, typer.Option(help="Maximum chunks per index file")
+    ] = DEFAULT_MAX_CHUNKS_PER_FILE,
+):
+    typer.echo(f"Indexing dataset '{dataset}' from {source_dir} into {dest_dir}")
     settings = get_settings()
     client = create_llm_client(settings)
     indexer = Indexer(
-        source_dir=DEFAULT_DOCS_DIR,
-        dest_file=DEFAULT_INDEXED_CHUNKS_FILE,
+        dataset=dataset,
+        source_dir=source_dir,
+        dest_dir=dest_dir,
         embedding_model=settings.llm_embedding_model,
+        max_chunks_per_index=max_chunks_per_index,
     )
-    docs = indexer.load_docs()
-    indexed_chunks = indexer.build_index(client, docs)
-    indexer.save_indexed_chunks(indexed_chunks)
+    docs_count, chunks_count = indexer.run(client)
     typer.echo(
-        f"Indexed {len(docs)} documents into {len(indexed_chunks)} chunks, saved to {DEFAULT_INDEXED_CHUNKS_FILE}"
+        f"Indexed {docs_count} documents into {chunks_count} chunks.\n"
+        f"- Index files: {dest_dir / 'indexes' / dataset}\n"
+        f"- Manifest:    {dest_dir / 'indexes' / dataset / 'manifest.json'}"
     )
 
 
