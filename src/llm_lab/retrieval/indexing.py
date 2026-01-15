@@ -7,6 +7,7 @@ from llm_lab.config.paths import BASE_DIR
 from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.types import (
     Chunk,
+    ChunkingConfig,
     IndexedChunk,
     IndexFile,
     ManifestDocument,
@@ -15,13 +16,32 @@ from llm_lab.retrieval.types import (
 )
 
 
-def _create_chunks(file_content: str, file_name: Path) -> list[Chunk]:
+def _create_chunks(
+    file_content: str, file_name: Path, chunking_config: ChunkingConfig
+) -> list[Chunk]:
     """Create chunks from a file content."""
     chunks = []
-    for chunk in file_content.split("\n\n"):
-        if not chunk.strip():
-            continue
-        chunks.append(Chunk(text=chunk.strip(), doc_path=str(file_name)))
+    separator = chunking_config.chunk_separator
+    chunk_size = chunking_config.chunk_size
+    content_length = len(file_content)
+    start = 0
+
+    while start < content_length:
+        end = min(start + chunk_size, content_length)
+        if end < content_length:
+            sep_index = file_content.rfind(separator, start, end)
+            if sep_index != -1 and sep_index > start:
+                end = sep_index + len(separator)
+
+        chunk_text = file_content[start:end].strip()
+        if chunk_text:
+            chunk = Chunk(
+                text=chunk_text,
+                doc_path=str(file_name),
+            )
+            chunks.append(chunk)
+        start = end
+
     return chunks
 
 
@@ -58,6 +78,7 @@ class Indexer:
         embedding_model: str,
         dataset: str,
         max_chunks_per_index: int,
+        chunking_config: ChunkingConfig,
     ) -> None:
         self.dest_dir = dest_dir
         self.source_dir = source_dir
@@ -65,6 +86,7 @@ class Indexer:
         self.dataset = dataset
         self.max_chunks_per_index = max_chunks_per_index
         self.index_creation_dir = self.dest_dir / "indexes" / self.dataset
+        self.chunking_config = chunking_config
 
     def load_docs(self) -> list[Path]:
         """Load all Markdown files from the source directory."""
@@ -85,7 +107,7 @@ class Indexer:
             file_content = _read_file(doc)
             doc_hash = hashlib.sha256(file_content.encode("utf-8")).hexdigest()
             doc_path = doc.relative_to(BASE_DIR)
-            chunks = _create_chunks(file_content, doc_path)
+            chunks = _create_chunks(file_content, doc_path, self.chunking_config)
             for chunk_id, chunk in enumerate(chunks):
                 embedding = llm_client.embed_text(chunk.text, self.embedding_model)
                 source = f"{doc_path}#chunk-{chunk_id}"

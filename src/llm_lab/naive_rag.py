@@ -21,6 +21,7 @@ from llm_lab.llm.errors import (
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.indexing import Indexer
+from llm_lab.retrieval.types import ChunkingConfig
 
 app = typer.Typer()
 
@@ -61,6 +62,10 @@ def index(
     max_chunks_per_index: Annotated[
         int, typer.Option(help="Maximum chunks per index file")
     ] = DEFAULT_MAX_CHUNKS_PER_FILE,
+    chunk_size: Annotated[int, typer.Option(help="Chunk size in characters")] = 10000,
+    chunk_separator: Annotated[
+        str, typer.Option(help="Chunk separator string")
+    ] = "\n\n",
 ):
     typer.echo(f"Indexing dataset '{dataset}' from {source_dir} into {dest_dir}")
     settings = get_settings()
@@ -71,6 +76,10 @@ def index(
         dest_dir=dest_dir,
         embedding_model=settings.llm_embedding_model,
         max_chunks_per_index=max_chunks_per_index,
+        chunking_config=ChunkingConfig(
+            chunk_size=chunk_size,
+            chunk_separator=chunk_separator,
+        ),
     )
     docs_count, chunks_count = indexer.run(client)
     typer.echo(

@@ -1,10 +1,13 @@
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from llm_lab.core.rag_service import RagService
 from llm_lab.llm.errors import LlmUnavailableError
 from llm_lab.main import app
-from llm_lab.retrieval.indexing import IndexedChunk
+from llm_lab.retrieval.indexing import IndexedChunk, _create_chunks
 from llm_lab.retrieval.retriever import Retriever
+from llm_lab.retrieval.types import ChunkingConfig
 
 client = TestClient(app)
 
@@ -141,3 +144,42 @@ def test_query_llm_unavailable_returns_502(monkeypatch) -> None:
     assert response.status_code == 502
     data = response.json()
     assert data["error"] == "Fake client unavailable"
+
+
+def test_create_chunks_happy_path() -> None:
+    text = "This is a sample document. It has several sentences. We will chunk it."
+    chunk_size = 70
+    chunk_separator = ". "
+    chunking_config = ChunkingConfig(
+        chunk_size=chunk_size, chunk_separator=chunk_separator
+    )
+    file_path = Path("assets/docs/kubernetes_intro.md")
+
+    chunks = _create_chunks(text, file_path, chunking_config)
+
+    assert len(chunks) == 1
+    assert chunks[0].text == text
+    assert chunks[0].doc_path == "assets/docs/kubernetes_intro.md"
+
+
+def test_create_chunks_splits_on_separator_before_limit() -> None:
+    text = "This is a sample document. It has several sentences. We will chunk it."
+    chunk_size = 65
+    chunk_separator = ". "
+    chunking_config = ChunkingConfig(
+        chunk_size=chunk_size, chunk_separator=chunk_separator
+    )
+    file_path = Path("assets/docs/kubernetes_intro.md")
+
+    chunks = _create_chunks(text, file_path, chunking_config)
+
+    assert len(chunks) == 2
+    assert chunks[0].text == "This is a sample document. It has several sentences."
+    assert chunks[1].text == "We will chunk it."
+
+
+def test_create_chunks_empty_content_returns_empty_list() -> None:
+    text = ""
+    config = ChunkingConfig(chunk_size=10, chunk_separator="\n\n")
+    chunks = _create_chunks(text, Path("assets/docs/whatever.md"), config)
+    assert chunks == []
