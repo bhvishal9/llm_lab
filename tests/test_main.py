@@ -81,7 +81,11 @@ def test_query_happy_path(monkeypatch) -> None:
     # 5) Call the API
     response = client.post(
         "/query",
-        json={"query": "What is a Kubernetes pod?", "top_k": 1},
+        json={
+            "query": "What is a Kubernetes pod?",
+            "top_k": 1,
+            "dataset": "test_dataset",
+        },
     )
 
     # 6) Assertions
@@ -99,7 +103,7 @@ def test_query_happy_path(monkeypatch) -> None:
 
 
 def test_query_invalid_query_returns_400(monkeypatch) -> None:
-    payload = {"query": "", "top_k": 1}
+    payload = {"query": "", "top_k": 1, "dataset": "test_dataset"}
     monkeypatch.setenv("LLM_API_KEY", "dummy-key")
     response = client.post("/query", json=payload)
     assert response.status_code == 400
@@ -107,7 +111,7 @@ def test_query_invalid_query_returns_400(monkeypatch) -> None:
 
 
 def test_query_invalid_top_k_returns_400(monkeypatch) -> None:
-    payload = {"query": "Test Query", "top_k": 0}
+    payload = {"query": "Test Query", "top_k": 0, "dataset": "test_dataset"}
     monkeypatch.setenv("LLM_API_KEY", "dummy-key")
     response = client.post("/query", json=payload)
     assert response.status_code == 400
@@ -115,7 +119,7 @@ def test_query_invalid_top_k_returns_400(monkeypatch) -> None:
 
 
 def test_query_missing_index_returns_500(monkeypatch) -> None:
-    payload = {"query": "Test Query", "top_k": 1}
+    payload = {"query": "Test Query", "top_k": 1, "dataset": "test_dataset"}
 
     def fake_load_indexed_chunks(self):
         raise FileNotFoundError(
@@ -134,7 +138,7 @@ def test_query_missing_index_returns_500(monkeypatch) -> None:
 
 
 def test_query_llm_unavailable_returns_502(monkeypatch) -> None:
-    payload = {"query": "Test Query", "top_k": 1}
+    payload = {"query": "Test Query", "top_k": 1, "dataset": "test_dataset"}
 
     # Make sure settings doesn't blow up
     monkeypatch.setenv("LLM_API_KEY", "dummy-key")
@@ -255,3 +259,68 @@ def test_indexer_no_markdown_files_returns_error(tmp_path: Path, monkeypatch) ->
         indexer.run(llm_client)
 
     assert str(excinfo.value) == f"No Markdown files found in directory {source_dir}"
+
+
+def test_retriever_loads_chunks_from_manifest_and_index_file(tmp_path: Path) -> None:
+    # Setup: create a fake indexed chunks directory with manifest and index file
+    indexed_chunks_dir = tmp_path / "indexes" / "test_dataset"
+    indexed_chunks_dir.mkdir(parents=True)
+
+    # Create a fake index file
+    index_file_path = indexed_chunks_dir / "index-0001.json"
+    index_file_content = {
+        "chunks": [
+            {
+                "text": "Chunk about Kubernetes pods",
+                "source": "assets/docs/kubernetes_intro.md",
+                "embedding": [1.0, 0.0],
+                "chunk_id": 0,
+                "doc_path": "assets/docs/kubernetes_intro.md",
+            }
+        ],
+        "dataset": "test_dataset",
+        "embedding_model": "models/embedding-001",
+        "created_at": "2024-01-01T00:00:00Z",
+        "index_id": "index-0001",
+    }
+    index_file_path.write_text(json.dumps(index_file_content), encoding="utf-8")
+
+    # Create a fake manifest file
+    manifest_path = indexed_chunks_dir / "manifest.json"
+    manifest_content = {
+        "dataset": "test_dataset",
+        "embedding_model": "models/embedding-001",
+        "created_at": "2024-01-01T00:00:00Z",
+        "total_docs": 1,
+        "total_chunks": 1,
+        "index_files": [
+            {
+                "index_id": "index-0001",
+                "path": "index-0001.json",
+                "num_chunks": 1,
+            }
+        ],
+        "documents": [
+            {
+                "doc_id": "kubernetes_intro.md",
+                "doc_path": "assets/docs/kubernetes_intro.md",
+                "hash": "dummyhash",
+                "last_indexed_at": "2024-01-01T00:00:00Z",
+            }
+        ],
+    }
+    manifest_path.write_text(json.dumps(manifest_content), encoding="utf-8")
+    retriever = Retriever(
+        client=FakeLlmClient(),
+        query_text="What is a Kubernetes pod?",
+        indexed_chunks_dir=indexed_chunks_dir,
+        top_k=1,
+    )
+    embedding_model, indexed_chunks = retriever.load_indexed_chunks()
+    assert embedding_model == "models/embedding-001"
+    assert len(indexed_chunks) == 1
+    assert indexed_chunks[0].text == "Chunk about Kubernetes pods"
+    assert indexed_chunks[0].source == "assets/docs/kubernetes_intro.md"
+    assert indexed_chunks[0].chunk_id == 0
+    assert isinstance(indexed_chunks[0], IndexedChunk)
+    assert indexed_chunks[0].doc_path == "assets/docs/kubernetes_intro.md"

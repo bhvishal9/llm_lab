@@ -1,5 +1,4 @@
-from pathlib import Path
-
+from llm_lab.config.paths import DEFAULT_DESTINATION_DIR
 from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.retriever import Retriever
 from llm_lab.retrieval.types import IndexedChunk
@@ -24,9 +23,10 @@ def build_prompt(question: str, chunks: list[IndexedChunk]) -> str:
 
 
 class RagService:
-    def __init__(self, client: LlmClient, index_path: Path) -> None:
+    def __init__(self, client: LlmClient, dataset: str) -> None:
         self.client = client
-        self.index_path = index_path
+        self.dataset = dataset
+        self.index_dir = DEFAULT_DESTINATION_DIR / "indexes" / self.dataset
 
     def answer_question(
         self,
@@ -34,7 +34,7 @@ class RagService:
         top_k: int,
     ) -> tuple[str, list[IndexedChunk]]:
         """Answer a question using a simple RAG pipeline."""
-        retriever = Retriever(self.client, query, self.index_path, top_k=top_k)
+        retriever = Retriever(self.client, query, self.index_dir, top_k=top_k)
         embedding_model_name, indexed_chunks = retriever.load_indexed_chunks()
         top_chunks = retriever.score_chunks(embedding_model_name, indexed_chunks)
         prompt = build_prompt(query, top_chunks)

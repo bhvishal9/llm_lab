@@ -173,7 +173,7 @@ class Indexer:
             manifest_index_files.append(
                 ManifestIndexFile(
                     index_id=index_id,
-                    path=str(index_path.relative_to(self.dest_dir)),
+                    path=str(index_path.relative_to(self.index_creation_dir)),
                     num_chunks=len(chunk_slice),
                 )
             )

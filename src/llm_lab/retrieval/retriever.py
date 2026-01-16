@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Sequence, Tuple
 
 from llm_lab.llm.types import LlmClient
-from llm_lab.retrieval.types import IndexedChunk
+from llm_lab.retrieval.types import IndexedChunk, IndexFile, ManifestFile
 
 
 def _cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float:
@@ -30,42 +30,49 @@ class Retriever:
         self,
         client: LlmClient,
         query_text: str,
-        indexed_chunks_path: Path,
+        indexed_chunks_dir: Path,
         top_k: int,
     ) -> None:
         self.client = client
         self.query_text = query_text
-        self.indexed_chunks_path = indexed_chunks_path
+        self.indexed_chunks_dir = indexed_chunks_dir
         self.top_k = top_k
 
     def load_indexed_chunks(self) -> Tuple[str, list[IndexedChunk]]:
-        """Load indexed chunks from a file."""
-        try:
-            indexed_chunks_file = self.indexed_chunks_path
-            file_content = indexed_chunks_file.read_text(encoding="utf-8").strip()
-        except FileNotFoundError:
+        """Load indexed chunks from the dataset directory."""
+        manifest_path = self.indexed_chunks_dir / "manifest.json"
+        if not manifest_path.exists():
             raise FileNotFoundError(
-                f"File {indexed_chunks_file} not found, make sure to run the index command first"
+                f"Manifest file not found at {manifest_path}, make sure to index the dataset first."
             )
-        if not file_content:
+        manifest_data = manifest_path.read_text(encoding="utf-8")
+        if not manifest_data:
             raise ValueError(
-                f"File {indexed_chunks_file} is empty, make sure to run the index command first"
+                f"Manifest file at {manifest_path} is empty, make sure to index the dataset first."
             )
-
         try:
-            data = json.loads(file_content)
-        except json.decoder.JSONDecodeError:
-            raise ValueError(f"File {indexed_chunks_file} is not a valid JSON file")
-        embedding_model_name = data.get("model_name")
-        if not isinstance(embedding_model_name, str):
-            raise ValueError(f"Model name not found in {indexed_chunks_file}")
+            manifest = ManifestFile.model_validate_json(manifest_data)
+        except json.JSONDecodeError:
+            raise ValueError(f"Manifest file at {manifest_path} is malformed.")
 
-        chunks_data = data.get("chunks", [])
-        if not isinstance(chunks_data, list):
-            raise ValueError(f"Invalid chunks data in {indexed_chunks_file}")
-        indexed_chunks = [IndexedChunk(**chunk) for chunk in chunks_data]
-
-        return embedding_model_name, indexed_chunks
+        embedding_model = manifest.embedding_model
+        indexed_chunks = []
+        for index_file in manifest.index_files:
+            index_file_path = self.indexed_chunks_dir / index_file.path
+            if not index_file_path.exists():
+                raise FileNotFoundError(
+                    f"Index file {index_file_path} not found, make sure to index the dataset first."
+                )
+            try:
+                index_file_data = index_file_path.read_text(encoding="utf-8")
+                index_file_validated_data = IndexFile.model_validate_json(
+                    index_file_data
+                )
+            except json.JSONDecodeError:
+                raise ValueError(f"Index file at {index_file_path} is malformed.")
+            index_file_chunks = index_file_validated_data.chunks
+            indexed_chunks.extend(index_file_chunks)
+        return embedding_model, indexed_chunks
 
     def score_chunks(
         self, embedding_model_name: str, indexed_chunks: list[IndexedChunk]

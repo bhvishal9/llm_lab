@@ -3,9 +3,10 @@ from typing import List
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field
 
-from llm_lab.api.dependencies import get_rag_service
+from llm_lab.api.dependencies import get_llm_client
 from llm_lab.api.exceptions import CustomException
 from llm_lab.core.rag_service import RagService
+from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.types import IndexedChunk
 
 
@@ -13,6 +14,7 @@ class QueryRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     query: str
     top_k: int = Field(default=3)
+    dataset: str = Field(description="Dataset name")
 
 
 class SourceChunk(BaseModel):
@@ -36,6 +38,10 @@ def validate_query_request(request: QueryRequest) -> None:
         )
     if request.top_k < 1 or request.top_k > 10:
         raise CustomException(status_code=400, message="top_k must be between 1 and 10")
+    if not request.dataset:
+        raise CustomException(
+            status_code=400, message="Dataset name must be a non-empty string"
+        )
 
 
 def build_response(
@@ -53,10 +59,10 @@ def build_response(
 
 @router.post("/query")
 async def query(
-    body: QueryRequest,
-    rag: RagService = Depends(get_rag_service),
+    body: QueryRequest, client: LlmClient = Depends(get_llm_client)
 ) -> QueryResponse:
     validate_query_request(body)
+    rag = RagService(client=client, dataset=body.dataset)
     try:
         response, top_chunks = rag.answer_question(
             query=body.query,

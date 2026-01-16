@@ -7,7 +7,6 @@ import typer
 from llm_lab.config.paths import (
     DEFAULT_DESTINATION_DIR,
     DEFAULT_DOCS_DIR,
-    DEFAULT_INDEXED_CHUNKS_FILE,
 )
 from llm_lab.config.settings import Settings, get_settings
 from llm_lab.core.rag_service import RagService
@@ -56,9 +55,6 @@ def index(
     source_dir: Annotated[
         Path, typer.Option(help="Source directory")
     ] = DEFAULT_DOCS_DIR,
-    dest_dir: Annotated[
-        Path, typer.Option(help="Destination directory")
-    ] = DEFAULT_DESTINATION_DIR,
     max_chunks_per_index: Annotated[
         int, typer.Option(help="Maximum chunks per index file")
     ] = DEFAULT_MAX_CHUNKS_PER_FILE,
@@ -67,6 +63,7 @@ def index(
         str, typer.Option(help="Chunk separator string")
     ] = "\n\n",
 ):
+    dest_dir = DEFAULT_DESTINATION_DIR
     typer.echo(f"Indexing dataset '{dataset}' from {source_dir} into {dest_dir}")
     settings = get_settings()
     client = create_llm_client(settings)
@@ -90,11 +87,13 @@ def index(
 
 
 @app.command()
-def query():
+def query(
+    dataset: Annotated[str, typer.Option(help="Dataset to query")],
+):
     typer.echo("Loading the index...")
     client = create_llm_client()
     query_text = take_user_input()
-    rag_service = RagService(client, DEFAULT_INDEXED_CHUNKS_FILE)
+    rag_service = RagService(client, dataset)
     response, top_chunks = rag_service.answer_question(
         query=query_text,
         top_k=3,
