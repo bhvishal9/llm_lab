@@ -1,15 +1,26 @@
+import json
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
+import llm_lab.retrieval.indexing as indexing
 from llm_lab.core.rag_service import RagService
 from llm_lab.llm.errors import LlmUnavailableError
 from llm_lab.main import app
-from llm_lab.retrieval.indexing import IndexedChunk, _create_chunks
+from llm_lab.retrieval.indexing import IndexedChunk, Indexer, _create_chunks
 from llm_lab.retrieval.retriever import Retriever
 from llm_lab.retrieval.types import ChunkingConfig
 
 client = TestClient(app)
+
+
+class FakeLlmClient:
+    def embed_text(self, text: str, embedding_model: str | None = None) -> list[float]:
+        return [0.1, 0.2, 0.3]
+
+    def generate_response(self, prompt: str, model: str | None = None) -> str:
+        raise NotImplementedError
 
 
 def test_health_ok() -> None:
@@ -183,3 +194,64 @@ def test_create_chunks_empty_content_returns_empty_list() -> None:
     config = ChunkingConfig(chunk_size=10, chunk_separator="\n\n")
     chunks = _create_chunks(text, Path("assets/docs/whatever.md"), config)
     assert chunks == []
+
+
+def test_indexer_happy_path(tmp_path: Path, monkeypatch) -> None:
+    # Setup: create a fake source directory with a text file
+    source_dir = tmp_path / "source"
+    source_dir.mkdir()
+    file_path = source_dir / "test.md"
+    file_content = "This is a test document. It will be indexed."
+    file_path.write_text(file_content, encoding="utf-8")
+
+    dest_dir = tmp_path / "dest"
+
+    monkeypatch.setattr(indexing, "BASE_DIR", tmp_path)
+    llm_client = FakeLlmClient()
+
+    # Create Indexer instance
+    indexer = Indexer(
+        source_dir=source_dir,
+        dest_dir=dest_dir,
+        chunking_config=ChunkingConfig(chunk_size=50, chunk_separator=". "),
+        embedding_model="models/embedding-001",
+        dataset="test_dataset",
+        max_chunks_per_index=1000,
+    )
+
+    # Run indexing
+    docs_count, chunks_count = indexer.run(llm_client)
+    assert docs_count == 1
+    assert chunks_count == 1
+
+    manifest_path = dest_dir / "indexes" / "test_dataset" / "manifest.json"
+    assert manifest_path.exists()
+
+    data = json.loads(manifest_path.read_text())
+    assert data["total_docs"] == 1
+    assert data["total_chunks"] == 1
+
+
+def test_indexer_no_markdown_files_returns_error(tmp_path: Path, monkeypatch) -> None:
+    source_dir = tmp_path / "source"
+    source_dir.mkdir()
+
+    dest_dir = tmp_path / "dest"
+
+    # Patch indexing.BASE_DIR to tmp_path
+    monkeypatch.setattr(indexing, "BASE_DIR", tmp_path)
+    llm_client = FakeLlmClient()
+
+    indexer = Indexer(
+        source_dir=source_dir,
+        dest_dir=dest_dir,
+        chunking_config=ChunkingConfig(chunk_size=50, chunk_separator=". "),
+        embedding_model="models/embedding-001",
+        dataset="test_dataset",
+        max_chunks_per_index=1000,
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        indexer.run(llm_client)
+
+    assert str(excinfo.value) == f"No Markdown files found in directory {source_dir}"
