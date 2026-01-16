@@ -25,7 +25,6 @@ def _create_chunks(
     chunk_size = chunking_config.chunk_size
     content_length = len(file_content)
     start = 0
-
     while start < content_length:
         end = min(start + chunk_size, content_length)
         if end < content_length:
