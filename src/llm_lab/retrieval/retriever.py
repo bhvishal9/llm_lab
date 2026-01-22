@@ -3,6 +3,11 @@ import math
 from pathlib import Path
 from typing import Sequence, Tuple
 
+from llm_lab.config.variables import (
+    CANDIDATE_MULTIPLIER,
+    MAX_CANDIDATES,
+    SIMILARITY_SCORE_THRESHOLD,
+)
 from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.types import IndexedChunk, IndexFile, ManifestFile
 
@@ -37,6 +42,7 @@ class Retriever:
         self.query_text = query_text
         self.indexed_chunks_dir = indexed_chunks_dir
         self.top_k = top_k
+        self.candidate_k = min(top_k * CANDIDATE_MULTIPLIER, MAX_CANDIDATES)
 
     def load_indexed_chunks(self) -> Tuple[str, list[IndexedChunk]]:
         """Load indexed chunks from the dataset directory."""
@@ -75,7 +81,10 @@ class Retriever:
         return embedding_model, indexed_chunks
 
     def score_chunks(
-        self, embedding_model_name: str, indexed_chunks: list[IndexedChunk]
+        self,
+        embedding_model_name: str,
+        indexed_chunks: list[IndexedChunk],
+        similarity_score_threshold: float = SIMILARITY_SCORE_THRESHOLD,
     ) -> list[IndexedChunk]:
         """Score chunks based on cosine similarity with the query embedding."""
         query_embedding = self.client.embed_text(self.query_text, embedding_model_name)
@@ -86,5 +95,10 @@ class Retriever:
 
         # Sort by similarity in descending order and take top_k
         scored_chunks.sort(key=lambda x: x[0], reverse=True)
-        top_chunks = [chunk for _, chunk in scored_chunks[: self.top_k]]
+        selected_chunks = [
+            chunk
+            for score, chunk in scored_chunks[: self.candidate_k]
+            if score >= similarity_score_threshold
+        ]
+        top_chunks = selected_chunks[: self.top_k]
         return top_chunks

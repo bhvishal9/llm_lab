@@ -23,6 +23,18 @@ class FakeLlmClient:
         raise NotImplementedError
 
 
+class NoCallLlmClient:
+    def embed_text(self, text: str, embedding_model: str | None = None) -> list[float]:
+        # Not really used in this test because we stub Retriever,
+        # but implemented for interface completeness.
+        return [1.0, 0.0]
+
+    def generate_response(self, prompt: str, model: str | None = None) -> str:
+        raise AssertionError(
+            "generate_response should not be called when no chunks are returned."
+        )
+
+
 def test_health_ok() -> None:
     response = client.get("/health")
     assert response.status_code == 200
@@ -324,3 +336,88 @@ def test_retriever_loads_chunks_from_manifest_and_index_file(tmp_path: Path) -> 
     assert indexed_chunks[0].chunk_id == 0
     assert isinstance(indexed_chunks[0], IndexedChunk)
     assert indexed_chunks[0].doc_path == "assets/docs/kubernetes_intro.md"
+
+
+def test_score_chunks_applies_threshold_and_top_k(monkeypatch, tmp_path: Path) -> None:
+    # Query embedding will always be [1.0, 0.0]
+    def fake_embed_text(
+        self, text: str, embedding_model: str | None = None
+    ) -> list[float]:
+        return [1.0, 0.0]
+
+    # Use the same FakeLlmClient type from above tests
+    monkeypatch.setattr(FakeLlmClient, "embed_text", fake_embed_text)
+
+    retriever = Retriever(
+        client=FakeLlmClient(),
+        query_text="pod",
+        indexed_chunks_dir=tmp_path,  # not used by score_chunks
+        top_k=2,
+    )
+
+    # Three chunks with different similarity to [1.0, 0.0]
+    # A: identical → cosine = 1.0 (should pass)
+    # B: [1,1] → cosine ≈ 0.707 (should pass with threshold 0.70)
+    # C: orthogonal-ish → cosine near 0 (should fail)
+    chunk_a = IndexedChunk(
+        text="high similarity A",
+        doc_path="assets/docs/a.md",
+        source="assets/docs/a.md#chunk-0",
+        embedding=[1.0, 0.0],
+        chunk_id=0,
+    )
+    chunk_b = IndexedChunk(
+        text="medium similarity B",
+        doc_path="assets/docs/b.md",
+        source="assets/docs/b.md#chunk-0",
+        embedding=[1.0, 1.0],
+        chunk_id=1,
+    )
+    chunk_c = IndexedChunk(
+        text="low similarity C",
+        doc_path="assets/docs/c.md",
+        source="assets/docs/c.md#chunk-0",
+        embedding=[0.0, 1.0],
+        chunk_id=2,
+    )
+
+    indexed_chunks = [chunk_a, chunk_b, chunk_c]
+
+    top_chunks = retriever.score_chunks(
+        embedding_model_name="models/embedding-001",
+        indexed_chunks=indexed_chunks,
+    )
+
+    # We asked for top_k=2. Two chunks should pass threshold and be returned.
+    assert len(top_chunks) == 2
+    texts = {c.text for c in top_chunks}
+    assert "high similarity A" in texts
+    assert "medium similarity B" in texts
+    assert "low similarity C" not in texts
+
+
+def test_rag_service_short_circuits_when_no_chunks(monkeypatch) -> None:
+    # Stub Retriever.load_indexed_chunks → returns valid model name + empty chunk list
+    monkeypatch.setattr(
+        "llm_lab.core.rag_service.Retriever.load_indexed_chunks",
+        lambda self: ("models/embedding-001", []),
+    )
+
+    # Stub Retriever.score_chunks → always returns empty list
+    monkeypatch.setattr(
+        "llm_lab.core.rag_service.Retriever.score_chunks",
+        lambda self, embedding_model_name, indexed_chunks: [],
+    )
+
+    rag_service = RagService(
+        client=NoCallLlmClient(),
+        dataset="test_dataset",
+    )
+
+    answer, chunks = rag_service.answer_question(
+        query="nonsense query that should match nothing",
+        top_k=3,
+    )
+
+    assert answer == "No relevant information found to answer the question."
+    assert chunks == []

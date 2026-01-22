@@ -37,6 +37,8 @@ class RagService:
         retriever = Retriever(self.client, query, self.index_dir, top_k=top_k)
         embedding_model_name, indexed_chunks = retriever.load_indexed_chunks()
         top_chunks = retriever.score_chunks(embedding_model_name, indexed_chunks)
+        if not top_chunks:
+            return "No relevant information found to answer the question.", []
         prompt = build_prompt(query, top_chunks)
         response = self.client.generate_response(prompt)
         return response, top_chunks
