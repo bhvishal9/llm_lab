@@ -1,26 +1,15 @@
 from llm_lab.core.rag_service import RagService
-from tests.fakes import NoCallLlmClient
+from tests.fakes import FakeVectorStoreClient, NoCallLlmClient
 
 
 class TestRagService:
     def test_rag_service_short_circuits_when_no_chunks(
-        self, monkeypatch, no_call_llm_client: NoCallLlmClient
+        self, no_call_llm_client: NoCallLlmClient
     ) -> None:
-        # Stub Retriever.load_indexed_chunks → returns valid model name + empty chunk list
-        monkeypatch.setattr(
-            "llm_lab.core.rag_service.Retriever.load_indexed_chunks",
-            lambda self: ("models/embedding-001", []),
-        )
-
-        # Stub Retriever.score_chunks → always returns empty list
-        monkeypatch.setattr(
-            "llm_lab.core.rag_service.Retriever.score_chunks",
-            lambda self, embedding_model_name, indexed_chunks: [],
-        )
-
         rag_service = RagService(
             client=no_call_llm_client,
             dataset="test_dataset",
+            vector_store=FakeVectorStoreClient(),
         )
 
         answer, chunks = rag_service.answer_question(

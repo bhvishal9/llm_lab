@@ -19,8 +19,8 @@ from llm_lab.llm.errors import (
 )
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
-from llm_lab.retrieval.indexing import Indexer
 from llm_lab.retrieval.types import ChunkingConfig
+from llm_lab.vector_store.file_store import FileStoreClient
 
 app = typer.Typer()
 
@@ -67,18 +67,18 @@ def index(
     typer.echo(f"Indexing dataset '{dataset}' from {source_dir} into {dest_dir}")
     settings = get_settings()
     client = create_llm_client(settings)
-    indexer = Indexer(
-        dataset=dataset,
-        source_dir=source_dir,
-        dest_dir=dest_dir,
-        embedding_model=settings.llm_embedding_model,
-        max_chunks_per_index=max_chunks_per_index,
-        chunking_config=ChunkingConfig(
-            chunk_size=chunk_size,
-            chunk_separator=chunk_separator,
-        ),
+    chunking_config = ChunkingConfig(
+        chunk_size=chunk_size,
+        chunk_separator=chunk_separator,
     )
-    docs_count, chunks_count = indexer.run(client)
+    vector_store_client = FileStoreClient(client, dest_dir)
+    docs_count, chunks_count = vector_store_client.index_dataset(
+        source_dir=source_dir,
+        embedding_model=settings.llm_embedding_model,
+        dataset=dataset,
+        max_chunks_per_index=max_chunks_per_index,
+        chunking_config=chunking_config,
+    )
     typer.echo(
         f"Indexed {docs_count} documents into {chunks_count} chunks.\n"
         f"- Index files: {dest_dir / 'indexes' / dataset}\n"

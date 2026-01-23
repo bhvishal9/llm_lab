@@ -1,7 +1,8 @@
 from llm_lab.config.paths import DEFAULT_DESTINATION_DIR
 from llm_lab.llm.types import LlmClient
-from llm_lab.retrieval.retriever import Retriever
 from llm_lab.retrieval.types import IndexedChunk
+from llm_lab.vector_store.file_store import FileStoreClient
+from llm_lab.vector_store.types import VectorStoreClient
 
 
 def build_prompt(question: str, chunks: list[IndexedChunk]) -> str:
@@ -23,10 +24,21 @@ def build_prompt(question: str, chunks: list[IndexedChunk]) -> str:
 
 
 class RagService:
-    def __init__(self, client: LlmClient, dataset: str) -> None:
+    def __init__(
+        self,
+        client: LlmClient,
+        dataset: str,
+        vector_store: VectorStoreClient | None = None,
+    ) -> None:
         self.client = client
         self.dataset = dataset
-        self.index_dir = DEFAULT_DESTINATION_DIR / "indexes" / self.dataset
+        self.vector_store_client: VectorStoreClient
+        if vector_store is None:
+            self.vector_store_client = FileStoreClient(
+                client=client, dest_dir=DEFAULT_DESTINATION_DIR
+            )
+        else:
+            self.vector_store_client = vector_store
 
     def answer_question(
         self,
@@ -34,9 +46,8 @@ class RagService:
         top_k: int,
     ) -> tuple[str, list[IndexedChunk]]:
         """Answer a question using a simple RAG pipeline."""
-        retriever = Retriever(self.client, query, self.index_dir, top_k=top_k)
-        embedding_model_name, indexed_chunks = retriever.load_indexed_chunks()
-        top_chunks = retriever.score_chunks(embedding_model_name, indexed_chunks)
+
+        top_chunks = self.vector_store_client.query(self.dataset, query, top_k)
         if not top_chunks:
             return "No relevant information found to answer the question.", []
         prompt = build_prompt(query, top_chunks)
