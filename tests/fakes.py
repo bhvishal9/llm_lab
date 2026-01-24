@@ -4,6 +4,12 @@ from llm_lab.retrieval.types import ChunkingConfig, IndexedChunk
 from llm_lab.vector_store.types import VectorStoreClient
 
 
+class FakeSettings:
+    def __init__(self, vector_store) -> None:
+        # vector_store can be a VectorStoreType or a bad string for negative tests
+        self.vector_store = vector_store
+
+
 class FakeLlmClient:
     def embed_text(self, text: str, embedding_model: str | None = None) -> list[float]:
         return [0.1, 0.2, 0.3]

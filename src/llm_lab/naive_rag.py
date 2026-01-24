@@ -9,7 +9,7 @@ from llm_lab.config.paths import (
     DEFAULT_DOCS_DIR,
 )
 from llm_lab.config.settings import Settings, get_settings
-from llm_lab.core.rag_service import RagService
+from llm_lab.core.rag_service import RagService, create_vector_store_client
 from llm_lab.llm.errors import (
     LlmAuthenticationError,
     LlmError,
@@ -20,7 +20,6 @@ from llm_lab.llm.errors import (
 from llm_lab.llm.gemini_client import GeminiClient
 from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.types import ChunkingConfig
-from llm_lab.vector_store.file_store import FileStoreClient
 
 app = typer.Typer()
 
@@ -71,7 +70,7 @@ def index(
         chunk_size=chunk_size,
         chunk_separator=chunk_separator,
     )
-    vector_store_client = FileStoreClient(client, dest_dir)
+    vector_store_client = create_vector_store_client(settings, client)
     docs_count, chunks_count = vector_store_client.index_dataset(
         source_dir=source_dir,
         embedding_model=settings.llm_embedding_model,
@@ -93,7 +92,7 @@ def query(
     typer.echo("Loading the index...")
     client = create_llm_client()
     query_text = take_user_input()
-    rag_service = RagService(client, dataset)
+    rag_service = RagService(client=client, dataset=dataset)
     response, top_chunks = rag_service.answer_question(
         query=query_text,
         top_k=3,

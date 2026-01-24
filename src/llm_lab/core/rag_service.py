@@ -1,8 +1,29 @@
+from typing import Protocol
+
 from llm_lab.config.paths import DEFAULT_DESTINATION_DIR
+from llm_lab.config.settings import VectorStoreType, get_settings
 from llm_lab.llm.types import LlmClient
 from llm_lab.retrieval.types import IndexedChunk
 from llm_lab.vector_store.file_store import FileStoreClient
 from llm_lab.vector_store.types import VectorStoreClient
+
+
+class HasVectorStore(Protocol):
+    """Minimal settings interface needed to build a vector store client."""
+
+    vector_store: VectorStoreType
+
+
+def create_vector_store_client(
+    settings: HasVectorStore,
+    llm_client: LlmClient,
+) -> VectorStoreClient:
+    """
+    Create a vector store client based on the provided settings.
+    """
+    if settings.vector_store == VectorStoreType.FILE:
+        return FileStoreClient(client=llm_client, dest_dir=DEFAULT_DESTINATION_DIR)
+    raise ValueError(f"Unsupported vector store type: {settings.vector_store}")
 
 
 def build_prompt(question: str, chunks: list[IndexedChunk]) -> str:
@@ -28,17 +49,14 @@ class RagService:
         self,
         client: LlmClient,
         dataset: str,
-        vector_store: VectorStoreClient | None = None,
     ) -> None:
         self.client = client
         self.dataset = dataset
         self.vector_store_client: VectorStoreClient
-        if vector_store is None:
-            self.vector_store_client = FileStoreClient(
-                client=client, dest_dir=DEFAULT_DESTINATION_DIR
-            )
-        else:
-            self.vector_store_client = vector_store
+        self.vector_store_client = create_vector_store_client(
+            settings=get_settings(),
+            llm_client=client,
+        )
 
     def answer_question(
         self,
