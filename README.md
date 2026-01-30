@@ -8,6 +8,12 @@ This project is a Python-based application that leverages the power of Large Lan
 Retrieval-Augmented Generation (RAG) service. It uses a FastAPI backend to expose an API for querying the RAG service,
 which can answer questions based on a provided dataset. The core of the RAG service is powered by Google's Gemini LLM.
 
+## Blog post (walkthrough)
+
+I wrote up the architecture, trade-offs, and what I learned here:
+
+- https://vbhargava.org/writing/llm-lab-rag-v1/
+
 ## Features
 
 - **FastAPI Backend**: A modern, fast (high-performance), web framework for building APIs with Python 3.7+ based on
