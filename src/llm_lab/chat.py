@@ -15,7 +15,7 @@ def chat_loop(client: LlmClient) -> None:
     while True:
         try:
             user_input = input("[You]: ").strip()
-        except (EOFError, KeyboardInterrupt):
+        except EOFError, KeyboardInterrupt:
             print_exit()
             return
         if user_input.lower() == "/exit":

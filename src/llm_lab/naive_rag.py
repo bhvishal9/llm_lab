@@ -29,7 +29,7 @@ DEFAULT_MAX_CHUNKS_PER_FILE = 1000
 def take_user_input() -> str:
     try:
         user_input = input("Enter the question:\n").strip()
-    except (EOFError, KeyboardInterrupt):
+    except EOFError, KeyboardInterrupt:
         raise ValueError("User interrupted the input, exiting...")
     if not user_input:
         raise ValueError("User input is empty, exiting...")
