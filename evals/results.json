@@ -1,0 +1,360 @@
+[
+  {
+    "id": "q1_bubble_shield",
+    "dataset": "ducks",
+    "query": "What is the Bubble Shield used by the Ducks and how does it work?",
+    "expected_doc": "assets/docs/duck_technology.md",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "error": null
+  },
+  {
+    "id": "q2_hydro_thrusters",
+    "dataset": "ducks",
+    "query": "How do Duck starships move through space and what makes their propulsion unusual?",
+    "expected_doc": "assets/docs/duck_technology.md",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "error": null
+  },
+  {
+    "id": "q3_squeak_drive",
+    "dataset": "ducks",
+    "query": "What is the Squeak Drive and what role does it play in Duck starship maneuverability?",
+    "expected_doc": "assets/docs/duck_technology.md",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "error": null
+  },
+  {
+    "id": "q4_wave_generator",
+    "dataset": "ducks",
+    "query": "What is the Wave Generator and how is it used as an offensive technology by the Ducks?",
+    "expected_doc": "assets/docs/duck_technology.md",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "error": null
+  },
+  {
+    "id": "q5_duck_weapons",
+    "dataset": "ducks",
+    "query": "Describe the main offensive and defensive technologies used by the Quack-Federa-tion.",
+    "expected_doc": "assets/docs/duck_technology.md",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "error": null
+  },
+  {
+    "id": "q6_duck_wars_enemy",
+    "dataset": "ducks",
+    "query": "Which civilization did the Quack-Federa-tion fight during the Great Duck Wars?",
+    "expected_doc": "assets/docs/the_duck_wars.md",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "error": null
+  },
+  {
+    "id": "q7_duck_wars_trigger",
+    "dataset": "ducks",
+    "query": "How did the Great Duck Wars begin in the Celestial Bathtub nebula?",
+    "expected_doc": "assets/docs/the_duck_wars.md",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "error": null
+  },
+  {
+    "id": "q8_drainer_weapon",
+    "dataset": "ducks",
+    "query": "What was the 'Drainer' weapon used by the Spong and what threat did it pose to Duck ships?",
+    "expected_doc": "assets/docs/the_duck_wars.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q9_battle_loofah_line",
+    "dataset": "ducks",
+    "query": "What happened at the Battle of the Loofah Line and why was it a turning point?",
+    "expected_doc": "assets/docs/the_duck_wars.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q10_waddles_wave",
+    "dataset": "ducks",
+    "query": "Explain the 'Waddles Wave' and how Commodore Waddles used it in the war.",
+    "expected_doc": "assets/docs/the_duck_wars.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q11_suds_admiral",
+    "dataset": "ducks",
+    "query": "Who was Admiral Suds and what was his role in the conflict with the Ducks?",
+    "expected_doc": "assets/docs/the_duck_wars.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q12_war_outcome",
+    "dataset": "ducks",
+    "query": "How did the Great Duck Wars end and what was the outcome for the Absorbant Empire of Spong?",
+    "expected_doc": "assets/docs/the_duck_wars.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q13_soapstone",
+    "dataset": "ducks",
+    "query": "What is the planet Soapstone like and what resources does it contain?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q14_foam_giant",
+    "dataset": "ducks",
+    "query": "Describe the Foam Giant Suds-Alpha-2 and why it is difficult to explore.",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q15_whirlpoolia",
+    "dataset": "ducks",
+    "query": "What makes the planet Whirlpoolia unique, and where is the Duck outpost located?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q16_drain_stopper",
+    "dataset": "ducks",
+    "query": "What is known about the planetoid called the Drain Stopper and its properties?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q17_exfolia",
+    "dataset": "ducks",
+    "query": "What kind of world is Exfolia, and what is special about its sands?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q18_bristle",
+    "dataset": "ducks",
+    "query": "Describe the planet Bristle and how its flora behaves towards visitors.",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q19_latheria",
+    "dataset": "ducks",
+    "query": "What kind of world is Latheria and why is it important to the Quack-Federa-tion?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q20_the_bar_asteroid",
+    "dataset": "ducks",
+    "query": "What is the Bar, and how does it affect Latheria's oceans?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q21_elastos",
+    "dataset": "ducks",
+    "query": "What are the main characteristics of the planet Elastos in the Rubber Rim?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q22_squeak_minor",
+    "dataset": "ducks",
+    "query": "Why does movement on Squeak Minor generate constant squeaking sounds?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q23_isoprene",
+    "dataset": "ducks",
+    "query": "What is Isoprene and why is it important in Duck history?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q24_deluge",
+    "dataset": "ducks",
+    "query": "Describe the planet Deluge and its main characteristics.",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q25_droplet_planetoid",
+    "dataset": "ducks",
+    "query": "What is special about the planetoid Droplet that orbits Deluge?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q26_nopul_prime",
+    "dataset": "ducks",
+    "query": "What kind of world is Nopul-Prime and why is it notable despite being uninteresting?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q27_voidfish_maw",
+    "dataset": "ducks",
+    "query": "What is the Voidfish's Maw and why is it dangerous?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q28_perfuma",
+    "dataset": "ducks",
+    "query": "What makes the planet Perfuma unique and how do the Ducks use it?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q29_mistral",
+    "dataset": "ducks",
+    "query": "What is the atmosphere of Mistral like and what visual effect does it create?",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  },
+  {
+    "id": "q30_wave_rider",
+    "dataset": "ducks",
+    "query": "Describe life on Wave-Rider and how its inhabitants use the planet's wave patterns.",
+    "expected_doc": "assets/docs/galactic_gazetteer.md",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
+  }
+]

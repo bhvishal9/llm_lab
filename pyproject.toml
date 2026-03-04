@@ -8,11 +8,12 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "fastapi>=0.133.0",
-    "google-genai>=1.64.0",
+    "fastapi>=0.135.1",
+    "google-genai>=1.65.0",
     "pydantic-settings>=2.13.1",
+    "pyrefly>=0.55.0",
     "pytest-mock>=3.15.1",
-    "ruff>=0.15.2",
+    "ruff>=0.15.4",
     "typer>=0.24.1",
     "uvicorn[standard]>=0.41.0",
 ]
