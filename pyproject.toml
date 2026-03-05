@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "contextvars>=2.4",
     "fastapi>=0.135.1",
     "google-genai>=1.65.0",
     "pydantic-settings>=2.13.1",

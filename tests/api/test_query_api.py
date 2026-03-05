@@ -1,3 +1,7 @@
+import json
+import logging
+import uuid
+
 from fastapi.testclient import TestClient
 
 from llm_lab.core.rag_service import RagService
@@ -128,3 +132,58 @@ class TestQueryApi:
         assert response.status_code == 502
         data = response.json()
         assert data["error"] == "Fake client unavailable"
+
+    def test_query_log_request_id(
+        self, client: TestClient, monkeypatch, caplog
+    ) -> None:
+        caplog.set_level(logging.INFO, logger="llm_lab.api")
+        # 1) Fake chunks: what we expect the service to return
+        fake_chunks = [
+            IndexedChunk(
+                text="Chunk about Kubernetes pods",
+                source="assets/docs/kubernetes_intro.md",
+                embedding=[1.0, 0.0],
+                chunk_id=0,
+                doc_path="assets/docs/kubernetes_intro.md",
+            ),
+            IndexedChunk(
+                text="Some other chunk",
+                source="assets/docs/other.md",
+                embedding=[0.0, 1.0],
+                chunk_id=1,
+                doc_path="assets/docs/other.md",
+            ),
+        ]
+
+        # 2) Fake RagService.answer_question so we don't touch real LLM / index
+        def fake_answer_question(self, query: str, top_k: int):
+            # optional: assert about inputs if you want
+            assert query == "What is a Kubernetes pod?"
+            assert top_k == 1
+            return "fake answer from LLM", fake_chunks[:top_k]
+
+        # 3) Patch env so Settings() doesn't explode
+        monkeypatch.setenv("LLM_API_KEY", "dummy-key")
+
+        # 4) Patch the method on RagService
+        monkeypatch.setattr(
+            RagService,
+            "answer_question",
+            fake_answer_question,
+        )
+
+        # 5) Call the API
+        client.post(
+            "/query",
+            json={
+                "query": "What is a Kubernetes pod?",
+                "top_k": 1,
+                "dataset": "test_dataset",
+            },
+        )
+
+        # 6) Assertions
+        logs = json.loads(caplog.messages[0])
+        assert logs["request_id"] != ""
+        assert logs["request_id"] != "uuid-not-set"
+        uuid.UUID(logs["request_id"])

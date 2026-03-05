@@ -1,11 +1,14 @@
 import json
 import logging
 import time
+import uuid
 from datetime import datetime, timezone
 from typing import Callable
 
 from fastapi import Request
 from starlette.concurrency import iterate_in_threadpool
+
+from llm_lab.observability.context import request_id
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("llm_lab.api")
@@ -13,6 +16,7 @@ logger = logging.getLogger("llm_lab.api")
 
 async def log_http_requests(request: Request, call_next: Callable):
     start_time = time.perf_counter()
+    request_id.set(str(uuid.uuid4()))
     response = await call_next(request)
     duration_ms = (time.perf_counter() - start_time) * 1000
 
@@ -23,6 +27,7 @@ async def log_http_requests(request: Request, call_next: Callable):
         "path": request.url.path,
         "status": response.status_code,
         "duration_ms": round(duration_ms, 3),
+        "request_id": request_id.get(),
     }
 
     if response.status_code >= 400:

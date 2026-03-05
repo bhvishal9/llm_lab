@@ -1,11 +1,11 @@
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
 from llm_lab.main import app
 from tests.fakes import FakeLlmClient, NoCallLlmClient
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def client() -> TestClient:
     """
     A fixture to provide a FastAPI TestClient for API testing.
