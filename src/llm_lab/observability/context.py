@@ -1,3 +1,3 @@
 from contextvars import ContextVar
 
-request_id = ContextVar("request_id", default="uuid-not-set")
+request_id_context_var = ContextVar("request_id", default="not-set")

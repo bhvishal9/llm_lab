@@ -43,5 +43,7 @@ class FakeVectorStoreClient(VectorStoreClient):
     ) -> tuple[int, int]:
         return 0, 0
 
-    def query(self, dataset: str, query_text: str, top_k: int) -> list[IndexedChunk]:
-        return []
+    def query(
+        self, dataset: str, query_text: str, top_k: int
+    ) -> tuple[list[IndexedChunk], int]:
+        return [], 0

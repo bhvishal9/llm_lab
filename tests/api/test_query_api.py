@@ -4,7 +4,7 @@ import uuid
 
 from fastapi.testclient import TestClient
 
-from llm_lab.core.rag_service import RagService
+from llm_lab.core.rag_service import QueryResult, RagService
 from llm_lab.llm.errors import LlmUnavailableError
 from llm_lab.retrieval.indexing import IndexedChunk
 from llm_lab.retrieval.retriever import Retriever
@@ -35,7 +35,14 @@ class TestQueryApi:
             # optional: assert about inputs if you want
             assert query == "What is a Kubernetes pod?"
             assert top_k == 1
-            return "fake answer from LLM", fake_chunks[:top_k]
+            candidate_k = 3
+            num_chunks_returned = len(fake_chunks)
+            return QueryResult(
+                answer="fake answer from LLM",
+                chunks=fake_chunks[:top_k],
+                candidate_k=candidate_k,
+                num_chunks_returned=num_chunks_returned,
+            )
 
         # 3) Patch env so Settings() doesn't explode
         monkeypatch.setenv("LLM_API_KEY", "dummy-key")
@@ -160,7 +167,14 @@ class TestQueryApi:
             # optional: assert about inputs if you want
             assert query == "What is a Kubernetes pod?"
             assert top_k == 1
-            return "fake answer from LLM", fake_chunks[:top_k]
+            candidate_k = 3
+            num_chunks_returned = len(fake_chunks)
+            return QueryResult(
+                answer="fake answer from LLM",
+                chunks=fake_chunks[:top_k],
+                candidate_k=candidate_k,
+                num_chunks_returned=num_chunks_returned,
+            )
 
         # 3) Patch env so Settings() doesn't explode
         monkeypatch.setenv("LLM_API_KEY", "dummy-key")

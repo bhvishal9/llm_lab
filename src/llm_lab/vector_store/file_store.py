@@ -34,7 +34,9 @@ class FileStoreClient(VectorStoreClient):
         docs_count, chunks_count = indexer.run(self.client)
         return docs_count, chunks_count
 
-    def query(self, dataset: str, query_text: str, top_k: int) -> list[IndexedChunk]:
+    def query(
+        self, dataset: str, query_text: str, top_k: int
+    ) -> tuple[list[IndexedChunk], int]:
         """Query the vector store and return the top_k most relevant documents along with their similarity scores."""
         indexed_chunks_dir = self.dest_dir / "indexes" / dataset
         retriever = Retriever(
@@ -45,4 +47,4 @@ class FileStoreClient(VectorStoreClient):
         )
         embedding_model_name, indexed_chunks = retriever.load_indexed_chunks()
         top_chunks = retriever.score_chunks(embedding_model_name, indexed_chunks)
-        return top_chunks
+        return top_chunks, retriever.candidate_k

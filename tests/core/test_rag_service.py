@@ -19,13 +19,16 @@ class TestRagService:
             dataset="test_dataset",
         )
 
-        answer, chunks = rag_service.answer_question(
+        query_result = rag_service.answer_question(
             query="nonsense query that should match nothing",
             top_k=3,
         )
 
-        assert answer == "No relevant information found to answer the question."
-        assert chunks == []
+        assert (
+            query_result.answer
+            == "No relevant information found to answer the question."
+        )
+        assert query_result.chunks == []
 
     def test_create_vector_store_client_returns_file_store_client(
         self, mocker: MockerFixture, no_call_llm_client: NoCallLlmClient

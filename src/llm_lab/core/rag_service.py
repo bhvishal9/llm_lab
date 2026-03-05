@@ -1,5 +1,7 @@
 from typing import Protocol
 
+from pydantic import BaseModel
+
 from llm_lab.config.paths import DEFAULT_DESTINATION_DIR
 from llm_lab.config.settings import VectorStoreType, get_settings
 from llm_lab.llm.types import LlmClient
@@ -12,6 +14,13 @@ class HasVectorStore(Protocol):
     """Minimal settings interface needed to build a vector store client."""
 
     vector_store: VectorStoreType
+
+
+class QueryResult(BaseModel):
+    answer: str
+    chunks: list[IndexedChunk]
+    candidate_k: int
+    num_chunks_returned: int
 
 
 def create_vector_store_client(
@@ -62,12 +71,24 @@ class RagService:
         self,
         query: str,
         top_k: int,
-    ) -> tuple[str, list[IndexedChunk]]:
+    ) -> QueryResult:
         """Answer a question using a simple RAG pipeline."""
 
-        top_chunks = self.vector_store_client.query(self.dataset, query, top_k)
+        top_chunks, candidate_k = self.vector_store_client.query(
+            self.dataset, query, top_k
+        )
         if not top_chunks:
-            return "No relevant information found to answer the question.", []
+            return QueryResult(
+                answer="No relevant information found to answer the question.",
+                chunks=top_chunks,
+                candidate_k=candidate_k,
+                num_chunks_returned=len(top_chunks),
+            )
         prompt = build_prompt(query, top_chunks)
         response = self.client.generate_response(prompt)
-        return response, top_chunks
+        return QueryResult(
+            answer=response,
+            chunks=top_chunks,
+            candidate_k=candidate_k,
+            num_chunks_returned=len(top_chunks),
+        )

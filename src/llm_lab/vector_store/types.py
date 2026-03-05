@@ -18,6 +18,8 @@ class VectorStoreClient(Protocol):
         """Index a dataset located in source_dir and store the index in dest_dir."""
         ...
 
-    def query(self, dataset: str, query_text: str, top_k: int) -> list[IndexedChunk]:
+    def query(
+        self, dataset: str, query_text: str, top_k: int
+    ) -> tuple[list[IndexedChunk], int]:
         """Query the vector store and return a list of the top_k most relevant IndexedChunks."""
         ...

@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, ConfigDict, Field
 
 from llm_lab.api.dependencies import get_llm_client
@@ -59,15 +59,19 @@ def build_response(
 
 @router.post("/query")
 async def query(
-    body: QueryRequest, client: LlmClient = Depends(get_llm_client)
+    body: QueryRequest, request: Request, client: LlmClient = Depends(get_llm_client)
 ) -> QueryResponse:
     validate_query_request(body)
+    request.state.dataset = body.dataset
+    request.state.top_k = body.top_k
     rag = RagService(client=client, dataset=body.dataset)
     try:
-        response, top_chunks = rag.answer_question(
+        query_result = rag.answer_question(
             query=body.query,
             top_k=body.top_k,
         )
+        request.state.candidate_k = query_result.candidate_k
+        request.state.num_chunks_returned = query_result.num_chunks_returned
     except (ValueError, FileNotFoundError) as err:
         raise CustomException(status_code=500, message=str(err)) from err
-    return build_response(top_chunks, response)
+    return build_response(query_result.chunks, query_result.answer)
