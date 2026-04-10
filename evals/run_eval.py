@@ -1,19 +1,19 @@
 import csv
 import json
+import sys
 from collections import Counter
 from json import JSONDecodeError
 from pathlib import Path
-from typing import List, Annotated
-import sys
+from typing import Annotated, List
 
 import typer
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from llm_lab.core.rag_service import RagService
 from llm_lab.llm.errors import (
-    LlmRateLimitError,
     LlmAuthenticationError,
     LlmError,
+    LlmRateLimitError,
 )
 from llm_lab.llm.types import LlmClient
 from llm_lab.naive_rag import create_llm_client
@@ -80,7 +80,7 @@ def generate_eval_output(
     dataset = example.dataset
     rag_service = RagService(client, dataset)
     try:
-        _answer, top_chunks = rag_service.answer_question(
+        result = rag_service.answer_question(
             query=example.query,
             top_k=top_k,
         )
@@ -114,7 +114,7 @@ def generate_eval_output(
             error=e.__class__.__name__,
         )
 
-    doc_paths = [chunk.doc_path for chunk in top_chunks]
+    doc_paths = [chunk.doc_path for chunk in result.chunks]
     matched = any(example.expected_doc == p for p in doc_paths)
     return EvalOutputConfig(
         id=example.id,

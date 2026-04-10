@@ -5,7 +5,7 @@ ducks,,assets/docs/duck_technology.md,q3_squeak_drive,True,3,What is the Squeak 
 ducks,,assets/docs/duck_technology.md,q4_wave_generator,True,3,What is the Wave Generator and how is it used as an offensive technology by the Ducks?,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3
 ducks,,assets/docs/duck_technology.md,q5_duck_weapons,True,3,Describe the main offensive and defensive technologies used by the Quack-Federa-tion.,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3
 ducks,,assets/docs/the_duck_wars.md,q6_duck_wars_enemy,True,3,Which civilization did the Quack-Federa-tion fight during the Great Duck Wars?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
-ducks,,assets/docs/the_duck_wars.md,q7_duck_wars_trigger,True,3,How did the Great Duck Wars begin in the Celestial Bathtub nebula?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,rate_limit,assets/docs/the_duck_wars.md,q7_duck_wars_trigger,False,0,How did the Great Duck Wars begin in the Celestial Bathtub nebula?,[],3
 ducks,rate_limit,assets/docs/the_duck_wars.md,q8_drainer_weapon,False,0,What was the 'Drainer' weapon used by the Spong and what threat did it pose to Duck ships?,[],3
 ducks,rate_limit,assets/docs/the_duck_wars.md,q9_battle_loofah_line,False,0,What happened at the Battle of the Loofah Line and why was it a turning point?,[],3
 ducks,rate_limit,assets/docs/the_duck_wars.md,q10_waddles_wave,False,0,Explain the 'Waddles Wave' and how Commodore Waddles used it in the war.,[],3

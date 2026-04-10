@@ -95,14 +95,10 @@
     "query": "How did the Great Duck Wars begin in the Celestial Bathtub nebula?",
     "expected_doc": "assets/docs/the_duck_wars.md",
     "top_k": 3,
-    "matched": true,
-    "num_returned": 3,
-    "returned_docs": [
-      "assets/docs/the_duck_wars.md",
-      "assets/docs/duck_technology.md",
-      "assets/docs/galactic_gazetteer.md"
-    ],
-    "error": null
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "error": "rate_limit"
   },
   {
     "id": "q8_drainer_weapon",

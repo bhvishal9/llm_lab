@@ -140,7 +140,7 @@ class TestQueryApi:
         data = response.json()
         assert data["error"] == "Fake client unavailable"
 
-    def test_query_log_request_id(
+    def test_query_log_fields_exists(
         self, client: TestClient, monkeypatch, caplog
     ) -> None:
         caplog.set_level(logging.INFO, logger="llm_lab.api")
@@ -201,3 +201,7 @@ class TestQueryApi:
         assert logs["request_id"] != ""
         assert logs["request_id"] != "uuid-not-set"
         uuid.UUID(logs["request_id"])
+        assert logs["top_k"] == 1
+        assert logs["dataset"] == "test_dataset"
+        assert logs["num_chunks_returned"] == 2
+        assert logs["candidate_k"] == 3
