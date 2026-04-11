@@ -1,6 +1,7 @@
 import csv
 import json
 import sys
+import time
 from collections import Counter
 from json import JSONDecodeError
 from pathlib import Path
@@ -214,6 +215,7 @@ def run_eval(
         example_top_k = config.top_k if config.top_k is not None else top_k
         eval_output = generate_eval_output(config, client, example_top_k)
         eval_output_config.append(eval_output)
+        time.sleep(20)
 
     save_eval_output(eval_output_config)
     print_eval_output(top_k, eval_output_config)

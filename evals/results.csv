@@ -5,27 +5,27 @@ ducks,,assets/docs/duck_technology.md,q3_squeak_drive,True,3,What is the Squeak 
 ducks,,assets/docs/duck_technology.md,q4_wave_generator,True,3,What is the Wave Generator and how is it used as an offensive technology by the Ducks?,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3
 ducks,,assets/docs/duck_technology.md,q5_duck_weapons,True,3,Describe the main offensive and defensive technologies used by the Quack-Federa-tion.,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3
 ducks,,assets/docs/the_duck_wars.md,q6_duck_wars_enemy,True,3,Which civilization did the Quack-Federa-tion fight during the Great Duck Wars?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
-ducks,rate_limit,assets/docs/the_duck_wars.md,q7_duck_wars_trigger,False,0,How did the Great Duck Wars begin in the Celestial Bathtub nebula?,[],3
-ducks,rate_limit,assets/docs/the_duck_wars.md,q8_drainer_weapon,False,0,What was the 'Drainer' weapon used by the Spong and what threat did it pose to Duck ships?,[],3
-ducks,rate_limit,assets/docs/the_duck_wars.md,q9_battle_loofah_line,False,0,What happened at the Battle of the Loofah Line and why was it a turning point?,[],3
-ducks,rate_limit,assets/docs/the_duck_wars.md,q10_waddles_wave,False,0,Explain the 'Waddles Wave' and how Commodore Waddles used it in the war.,[],3
-ducks,rate_limit,assets/docs/the_duck_wars.md,q11_suds_admiral,False,0,Who was Admiral Suds and what was his role in the conflict with the Ducks?,[],3
-ducks,rate_limit,assets/docs/the_duck_wars.md,q12_war_outcome,False,0,How did the Great Duck Wars end and what was the outcome for the Absorbant Empire of Spong?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q13_soapstone,False,0,What is the planet Soapstone like and what resources does it contain?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q14_foam_giant,False,0,Describe the Foam Giant Suds-Alpha-2 and why it is difficult to explore.,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q15_whirlpoolia,False,0,"What makes the planet Whirlpoolia unique, and where is the Duck outpost located?",[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q16_drain_stopper,False,0,What is known about the planetoid called the Drain Stopper and its properties?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q17_exfolia,False,0,"What kind of world is Exfolia, and what is special about its sands?",[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q18_bristle,False,0,Describe the planet Bristle and how its flora behaves towards visitors.,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q19_latheria,False,0,What kind of world is Latheria and why is it important to the Quack-Federa-tion?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q20_the_bar_asteroid,False,0,"What is the Bar, and how does it affect Latheria's oceans?",[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q21_elastos,False,0,What are the main characteristics of the planet Elastos in the Rubber Rim?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q22_squeak_minor,False,0,Why does movement on Squeak Minor generate constant squeaking sounds?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q23_isoprene,False,0,What is Isoprene and why is it important in Duck history?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q24_deluge,False,0,Describe the planet Deluge and its main characteristics.,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q25_droplet_planetoid,False,0,What is special about the planetoid Droplet that orbits Deluge?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q26_nopul_prime,False,0,What kind of world is Nopul-Prime and why is it notable despite being uninteresting?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q27_voidfish_maw,False,0,What is the Voidfish's Maw and why is it dangerous?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q28_perfuma,False,0,What makes the planet Perfuma unique and how do the Ducks use it?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q29_mistral,False,0,What is the atmosphere of Mistral like and what visual effect does it create?,[],3
-ducks,rate_limit,assets/docs/galactic_gazetteer.md,q30_wave_rider,False,0,Describe life on Wave-Rider and how its inhabitants use the planet's wave patterns.,[],3
+ducks,,assets/docs/the_duck_wars.md,q7_duck_wars_trigger,True,3,How did the Great Duck Wars begin in the Celestial Bathtub nebula?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/the_duck_wars.md,q8_drainer_weapon,True,3,What was the 'Drainer' weapon used by the Spong and what threat did it pose to Duck ships?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/the_duck_wars.md,q9_battle_loofah_line,True,2,What happened at the Battle of the Loofah Line and why was it a turning point?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/the_duck_wars.md,q10_waddles_wave,True,2,Explain the 'Waddles Wave' and how Commodore Waddles used it in the war.,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/the_duck_wars.md,q11_suds_admiral,True,3,Who was Admiral Suds and what was his role in the conflict with the Ducks?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/the_duck_wars.md,q12_war_outcome,True,3,How did the Great Duck Wars end and what was the outcome for the Absorbant Empire of Spong?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q13_soapstone,True,3,What is the planet Soapstone like and what resources does it contain?,"['assets/docs/galactic_gazetteer.md', 'assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q14_foam_giant,True,3,Describe the Foam Giant Suds-Alpha-2 and why it is difficult to explore.,"['assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q15_whirlpoolia,True,3,"What makes the planet Whirlpoolia unique, and where is the Duck outpost located?","['assets/docs/galactic_gazetteer.md', 'assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q16_drain_stopper,True,3,What is known about the planetoid called the Drain Stopper and its properties?,"['assets/docs/galactic_gazetteer.md', 'assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q17_exfolia,True,3,"What kind of world is Exfolia, and what is special about its sands?","['assets/docs/galactic_gazetteer.md', 'assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q18_bristle,True,3,Describe the planet Bristle and how its flora behaves towards visitors.,"['assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q19_latheria,True,3,What kind of world is Latheria and why is it important to the Quack-Federa-tion?,"['assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q20_the_bar_asteroid,True,3,"What is the Bar, and how does it affect Latheria's oceans?","['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q21_elastos,True,3,What are the main characteristics of the planet Elastos in the Rubber Rim?,"['assets/docs/galactic_gazetteer.md', 'assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q22_squeak_minor,True,3,Why does movement on Squeak Minor generate constant squeaking sounds?,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q23_isoprene,True,3,What is Isoprene and why is it important in Duck history?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q24_deluge,True,3,Describe the planet Deluge and its main characteristics.,"['assets/docs/galactic_gazetteer.md', 'assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q25_droplet_planetoid,True,3,What is special about the planetoid Droplet that orbits Deluge?,"['assets/docs/duck_technology.md', 'assets/docs/galactic_gazetteer.md', 'assets/docs/the_duck_wars.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q26_nopul_prime,True,3,What kind of world is Nopul-Prime and why is it notable despite being uninteresting?,"['assets/docs/galactic_gazetteer.md', 'assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q27_voidfish_maw,False,2,What is the Voidfish's Maw and why is it dangerous?,"['assets/docs/the_duck_wars.md', 'assets/docs/duck_technology.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q28_perfuma,True,3,What makes the planet Perfuma unique and how do the Ducks use it?,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q29_mistral,False,2,What is the atmosphere of Mistral like and what visual effect does it create?,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md']",3
+ducks,,assets/docs/galactic_gazetteer.md,q30_wave_rider,True,3,Describe life on Wave-Rider and how its inhabitants use the planet's wave patterns.,"['assets/docs/duck_technology.md', 'assets/docs/the_duck_wars.md', 'assets/docs/galactic_gazetteer.md']",3

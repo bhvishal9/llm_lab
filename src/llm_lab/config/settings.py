@@ -5,7 +5,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_EMBEDDING_MODEL_NAME = "gemini-embedding-001"
-DEFAULT_MODEL_NAME = "gemini-2.5-flash"
+DEFAULT_MODEL_NAME = "gemini-3.1-flash-lite-preview"
 
 
 class VectorStoreType(str, enum.Enum):
