@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Callable
 
-from fastapi import Request
+from fastapi import Request, Response
 from starlette.concurrency import iterate_in_threadpool
 
 from llm_lab.observability.context import (
@@ -19,7 +19,8 @@ logger = logging.getLogger("llm_lab.api")
 async def log_http_requests(request: Request, call_next: Callable):
     start_time = time.perf_counter()
     request_id_context_var.set(str(uuid.uuid4()))
-    response = await call_next(request)
+    response: Response = await call_next(request)
+    response.headers["x-request-id"] = request_id_context_var.get()
     duration_ms = (time.perf_counter() - start_time) * 1000
 
     log_payload = {
