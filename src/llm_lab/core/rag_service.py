@@ -1,3 +1,4 @@
+import time
 from typing import Protocol
 
 from pydantic import BaseModel
@@ -5,6 +6,7 @@ from pydantic import BaseModel
 from llm_lab.config.paths import DEFAULT_DESTINATION_DIR
 from llm_lab.config.settings import VectorStoreType, get_settings
 from llm_lab.llm.types import LlmClient
+from llm_lab.observability.context import generate_ms_context_var
 from llm_lab.retrieval.types import IndexedChunk
 from llm_lab.vector_store.file_store import FileStoreClient
 from llm_lab.vector_store.types import VectorStoreClient
@@ -85,7 +87,10 @@ class RagService:
                 num_chunks_returned=len(top_chunks),
             )
         prompt = build_prompt(query, top_chunks)
+        start_time = time.perf_counter()
         response = self.client.generate_response(prompt)
+        generate_ms = round(((time.perf_counter() - start_time) * 1000), 3)
+        generate_ms_context_var.set(generate_ms)
         return QueryResult(
             answer=response,
             chunks=top_chunks,

@@ -1,6 +1,8 @@
+import time
 from pathlib import Path
 
 from llm_lab.llm.types import LlmClient
+from llm_lab.observability.context import retrieve_ms_context_var
 from llm_lab.retrieval.indexing import Indexer
 from llm_lab.retrieval.retriever import Retriever
 from llm_lab.retrieval.types import ChunkingConfig, IndexedChunk
@@ -39,6 +41,7 @@ class FileStoreClient(VectorStoreClient):
     ) -> tuple[list[IndexedChunk], int]:
         """Query the vector store and return the top_k most relevant documents along with their similarity scores."""
         indexed_chunks_dir = self.dest_dir / "indexes" / dataset
+        start_time = time.perf_counter()
         retriever = Retriever(
             client=self.client,
             query_text=query_text,
@@ -47,4 +50,6 @@ class FileStoreClient(VectorStoreClient):
         )
         embedding_model_name, indexed_chunks = retriever.load_indexed_chunks()
         top_chunks = retriever.score_chunks(embedding_model_name, indexed_chunks)
+        retrieve_ms = round(((time.perf_counter() - start_time) * 1000), 3)
+        retrieve_ms_context_var.set(retrieve_ms)
         return top_chunks, retriever.candidate_k

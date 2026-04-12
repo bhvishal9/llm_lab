@@ -10,7 +10,7 @@ from llm_lab.llm.errors import (
     LlmRateLimitError,
     LlmUnavailableError,
 )
-from llm_lab.observability.logging import log_http_requests
+from llm_lab.observability.logging import LoggingMiddleware
 
 app = FastAPI(title="llm_lab", version="0.0.1")
 
@@ -67,7 +67,7 @@ async def llm_generic_error_exception_handler(request: Request, exc: LlmError):
     )
 
 
-app.middleware("http")(log_http_requests)
+app.add_middleware(LoggingMiddleware)
 
 app.include_router(echo.router)
 app.include_router(health.router)

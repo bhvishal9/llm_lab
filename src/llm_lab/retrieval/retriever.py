@@ -1,5 +1,6 @@
 import json
 import math
+import time
 from pathlib import Path
 from typing import Sequence, Tuple
 
@@ -9,6 +10,7 @@ from llm_lab.config.variables import (
     SIMILARITY_SCORE_THRESHOLD,
 )
 from llm_lab.llm.types import LlmClient
+from llm_lab.observability.context import embed_ms_context_var
 from llm_lab.retrieval.types import IndexedChunk, IndexFile, ManifestFile
 
 
@@ -80,6 +82,14 @@ class Retriever:
             indexed_chunks.extend(index_file_chunks)
         return embedding_model, indexed_chunks
 
+    def embed_query(self, embedding_model_name: str) -> list[float]:
+        """Generates the embedding of the query text."""
+        start_time = time.perf_counter()
+        query_embedding = self.client.embed_text(self.query_text, embedding_model_name)
+        embedding_time = round((time.perf_counter() - start_time) * 1000, 3)
+        embed_ms_context_var.set(embedding_time)
+        return query_embedding
+
     def score_chunks(
         self,
         embedding_model_name: str,
@@ -87,7 +97,7 @@ class Retriever:
         similarity_score_threshold: float = SIMILARITY_SCORE_THRESHOLD,
     ) -> list[IndexedChunk]:
         """Score chunks based on cosine similarity with the query embedding."""
-        query_embedding = self.client.embed_text(self.query_text, embedding_model_name)
+        query_embedding = self.embed_query(embedding_model_name)
         scored_chunks = []
         for chunk in indexed_chunks:
             similarity = _cosine_similarity(query_embedding, chunk.embedding)

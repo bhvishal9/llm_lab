@@ -9,14 +9,14 @@ authors = [
 requires-python = ">=3.14"
 dependencies = [
     "contextvars>=2.4",
-    "fastapi>=0.135.1",
-    "google-genai>=1.65.0",
+    "fastapi>=0.135.3",
+    "google-genai>=1.72.0",
     "pydantic-settings>=2.13.1",
-    "pyrefly>=0.55.0",
     "pytest-mock>=3.15.1",
-    "ruff>=0.15.4",
+    "ruff>=0.15.10",
+    "starlette>=1.0.0",
     "typer>=0.24.1",
-    "uvicorn[standard]>=0.41.0",
+    "uvicorn[standard]>=0.44.0",
 ]
 
 [project.scripts]
@@ -29,6 +29,6 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
-    "pytest>=9.0.2",
-    "pytest-cov>=7.0.0",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
 ]
