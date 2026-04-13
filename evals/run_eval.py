@@ -26,7 +26,8 @@ class EvalInputConfig(BaseModel):
     id: str
     dataset: str
     query: str
-    expected_doc: str
+    expected_docs: List[str]
+    query_type: str
     top_k: int | None = Field(default=None, ge=1)
 
 
@@ -39,6 +40,22 @@ class EvalOutputConfig(EvalInputConfig):
 
 
 app = typer.Typer()
+
+
+def _is_matched(
+    query_type: str, expected_docs: List[str], returned_docs: List[str]
+) -> bool:
+    """Determine whether a result is a match based on query type.
+
+    - factual: at least one expected doc appears in returned docs
+    - multi_hop: all expected docs must appear in returned docs
+    - out_of_scope: matched when nothing is returned (system correctly abstained)
+    """
+    if query_type == "out_of_scope":
+        return len(returned_docs) == 0
+    if query_type == "multi_hop":
+        return all(doc in returned_docs for doc in expected_docs)
+    return any(doc in returned_docs for doc in expected_docs)
 
 
 def load_dataset_json(path: Path) -> List[EvalInputConfig]:
@@ -91,7 +108,8 @@ def generate_eval_output(
             id=example.id,
             dataset=example.dataset,
             query=example.query,
-            expected_doc=example.expected_doc,
+            expected_docs=example.expected_docs,
+            query_type=example.query_type,
             matched=False,
             num_returned=0,
             returned_docs=[],
@@ -107,7 +125,8 @@ def generate_eval_output(
             id=example.id,
             dataset=example.dataset,
             query=example.query,
-            expected_doc=example.expected_doc,
+            expected_docs=example.expected_docs,
+            query_type=example.query_type,
             matched=False,
             num_returned=0,
             returned_docs=[],
@@ -116,12 +135,13 @@ def generate_eval_output(
         )
 
     doc_paths = [chunk.doc_path for chunk in result.chunks]
-    matched = any(example.expected_doc == p for p in doc_paths)
+    matched = _is_matched(example.query_type, example.expected_docs, doc_paths)
     return EvalOutputConfig(
         id=example.id,
         dataset=example.dataset,
         query=example.query,
-        expected_doc=example.expected_doc,
+        expected_docs=example.expected_docs,
+        query_type=example.query_type,
         matched=matched,
         num_returned=len(doc_paths),
         returned_docs=doc_paths,
@@ -153,18 +173,7 @@ def print_eval_output(default_top_k: int, eval_output: List[EvalOutputConfig]) -
     results_json = output_dir / "results.json"
     results_csv = output_dir / "results.csv"
     total_examples = len(eval_output)
-    matched_examples = sum(1 for output in eval_output if output.matched)
     errored_examples = sum(1 for output in eval_output if output.error is not None)
-    processed_examples = total_examples - errored_examples
-    missed_examples = processed_examples - matched_examples
-    returned_examples = sum(
-        1 for output in eval_output if output.error is None and output.num_returned > 0
-    )
-    observed_recall = matched_examples / total_examples
-    retrieval_recall = (
-        matched_examples / processed_examples if processed_examples > 0 else 0.0
-    )
-    coverage = returned_examples / processed_examples if processed_examples > 0 else 0.0
     error_breakdown = Counter(
         output.error for output in eval_output if output.error is not None
     )
@@ -176,17 +185,69 @@ def print_eval_output(default_top_k: int, eval_output: List[EvalOutputConfig]) -
             if len(top_k_values) == 1
             else f"mixed values {top_k_values} (default={default_top_k})"
         )
+
+    # Recall metrics — factual and multi_hop only
+    retrieval_examples = [
+        o for o in eval_output if o.query_type in ("factual", "multi_hop")
+    ]
+    retrieval_total = len(retrieval_examples)
+    retrieval_matched = sum(1 for o in retrieval_examples if o.matched)
+    retrieval_errored = sum(1 for o in retrieval_examples if o.error is not None)
+    retrieval_processed = retrieval_total - retrieval_errored
+    retrieval_returned = sum(
+        1 for o in retrieval_examples if o.error is None and o.num_returned > 0
+    )
+    observed_recall = (
+        retrieval_matched / retrieval_total if retrieval_total > 0 else 0.0
+    )
+    retrieval_recall = (
+        retrieval_matched / retrieval_processed if retrieval_processed > 0 else 0.0
+    )
+    coverage = (
+        retrieval_returned / retrieval_processed if retrieval_processed > 0 else 0.0
+    )
+
+    # Abstention metric — out_of_scope only
+    oos_examples = [o for o in eval_output if o.query_type == "out_of_scope"]
+    oos_total = len(oos_examples)
+    oos_matched = sum(1 for o in oos_examples if o.matched)
+    oos_errored = sum(1 for o in oos_examples if o.error is not None)
+    oos_processed = oos_total - oos_errored
+    abstention_rate = oos_matched / oos_processed if oos_processed > 0 else 0.0
+
     typer.echo(f"Total examples: {total_examples}")
-    typer.echo(f"Matched examples: {matched_examples}")
-    typer.echo(f"Missed examples: {missed_examples}")
     typer.echo(f"Errored examples: {errored_examples}")
-    typer.echo(f"Observed recall at {top_k_label} (matched/total): {observed_recall}")
+    typer.echo("")
+    typer.echo(f"Retrieval examples (factual + multi_hop): {retrieval_total}")
+    typer.echo(f"  Matched: {retrieval_matched}")
+    typer.echo(f"  Missed: {retrieval_processed - retrieval_matched}")
     typer.echo(
-        f"Retrieval recall at {top_k_label} (matched/non-error): {retrieval_recall}"
+        f"  Observed recall at {top_k_label} (matched/total): {observed_recall:.3f}"
     )
     typer.echo(
-        f"Coverage at {top_k_label} (returned_docs>0 among non-error): {coverage}"
+        f"  Retrieval recall at {top_k_label} (matched/non-error): {retrieval_recall:.3f}"
     )
+    typer.echo(
+        f"  Coverage at {top_k_label} (returned>0 among non-error): {coverage:.3f}"
+    )
+    typer.echo("")
+    typer.echo(f"Out-of-scope examples: {oos_total}")
+    typer.echo(f"  Abstention rate (correctly returned nothing): {abstention_rate:.3f}")
+
+    query_types = sorted({o.query_type for o in eval_output})
+    if len(query_types) > 1:
+        typer.echo("Breakdown by query type:")
+        for qt in query_types:
+            qt_results = [o for o in eval_output if o.query_type == qt]
+            qt_total = len(qt_results)
+            qt_matched = sum(1 for o in qt_results if o.matched)
+            qt_errored = sum(1 for o in qt_results if o.error is not None)
+            qt_processed = qt_total - qt_errored
+            qt_recall = qt_matched / qt_processed if qt_processed > 0 else 0.0
+            typer.echo(
+                f"  {qt}: {qt_matched}/{qt_processed} matched (recall={qt_recall:.3f}, errors={qt_errored})"
+            )
+
     if error_breakdown:
         typer.echo("Error breakdown:")
         for error_name, count in sorted(error_breakdown.items()):
