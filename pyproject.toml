@@ -10,7 +10,8 @@ requires-python = ">=3.14"
 dependencies = [
     "contextvars>=2.4",
     "fastapi>=0.135.3",
-    "google-genai>=1.72.0",
+    "google-genai>=1.73.1",
+    "pydantic>=2.13.1",
     "pydantic-settings>=2.13.1",
     "pytest-mock>=3.15.1",
     "ruff>=0.15.10",
@@ -29,6 +30,78 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "import-linter>=2.1",
+    "mypy>=1.15",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
+]
+
+# ---------------------------------------------------------------------------
+# Ruff
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle errors
+    "F", # pyflakes
+    "UP", # pyupgrade — use modern Python syntax (the main ask)
+    "B", # flake8-bugbear — real bugs and design issues
+    "SIM", # flake8-simplify — unnecessarily verbose patterns
+    "I", # isort — import ordering
+    "C90", # McCabe complexity
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # line too long — ruff-format handles this
+    "B008", # function calls in default arguments — FastAPI Depends() uses this
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+known-first-party = ["llm_lab"]
+
+# ---------------------------------------------------------------------------
+# Mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+# google-genai ships no py.typed marker or bundled stubs
+module = ["google.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+addopts = "--cov=src/llm_lab --cov-report=term-missing"
+testpaths = ["tests"]
+
+# ---------------------------------------------------------------------------
+# import-linter
+# ---------------------------------------------------------------------------
+[tool.importlinter]
+root_package = "llm_lab"
+source_paths = ["src"]
+
+[[tool.importlinter.contracts]]
+name = "Enforce layered architecture"
+type = "layers"
+# Each line is one layer. A module may only import from layers below it.
+# Modules on the same line (separated by |) are independent of each other.
+layers = [
+    "llm_lab.api",
+    "llm_lab.core",
+    "llm_lab.retrieval",
+    "llm_lab.vector_store",
+    "llm_lab.llm",
+    "llm_lab.observability | llm_lab.config",
 ]

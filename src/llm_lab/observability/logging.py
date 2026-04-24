@@ -2,7 +2,7 @@ import json
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -47,7 +47,7 @@ class LoggingMiddleware:
         await self.app(scope, receive, wrapped_send)
         duration_ms = (time.perf_counter() - start_time) * 1000
         log_payload = {
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "logger": logger.name,
             "path": scope["path"],
             "method": scope["method"],

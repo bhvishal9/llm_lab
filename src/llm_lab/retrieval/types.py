@@ -3,35 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
-class Chunk(BaseModel):
-    text: str = Field(description="The textual content of the chunk.")
-    doc_path: str = Field(
-        description="The path to the document from which the chunk was extracted."
-    )
-
-
-class IndexedChunk(Chunk):
-    source: str = Field(description="The source of the chunk (e.g., 'document').")
-    embedding: list[float] = Field(description="The embedding vector of the chunk.")
-    chunk_id: int = Field(
-        description="A unique identifier for the chunk within its index."
-    )
-
-
-class IndexFile(BaseModel):
-    dataset: str = Field(description="The name of the dataset this index belongs to.")
-    embedding_model: str = Field(
-        description="The embedding model used to create the chunk embeddings."
-    )
-    created_at: datetime = Field(
-        description="The timestamp when this index file was created."
-    )
-    index_id: str = Field(description="A unique identifier for this index file.")
-    chunks: list[IndexedChunk] = Field(
-        description="A list of indexed chunks contained in this file."
-    )
-
-
 class ManifestIndexFile(BaseModel):
     index_id: str = Field(
         description='Unique identifier for the index (e.g., "index-0001").'

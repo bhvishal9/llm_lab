@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from llm_lab.retrieval.indexing import IndexedChunk
 from llm_lab.retrieval.retriever import Retriever
+from llm_lab.vector_store.types import IndexedChunk
 from tests.fakes import FakeLlmClient
 
 

@@ -6,8 +6,8 @@ from fastapi.testclient import TestClient
 
 from llm_lab.core.rag_service import QueryResult, RagService
 from llm_lab.llm.errors import LlmUnavailableError
-from llm_lab.retrieval.indexing import IndexedChunk
 from llm_lab.retrieval.retriever import Retriever
+from llm_lab.vector_store.types import IndexedChunk
 
 
 class TestQueryApi:

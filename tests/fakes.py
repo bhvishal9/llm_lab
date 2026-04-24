@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from llm_lab.retrieval.types import ChunkingConfig, IndexedChunk
-from llm_lab.vector_store.types import VectorStoreClient
+from llm_lab.retrieval.types import ChunkingConfig
+from llm_lab.vector_store.types import IndexedChunk, VectorStoreClient
 
 
 class FakeSettings:

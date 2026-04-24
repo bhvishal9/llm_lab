@@ -5,7 +5,7 @@ import time
 from collections import Counter
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Annotated, List
+from typing import Annotated
 
 import typer
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -26,7 +26,7 @@ class EvalInputConfig(BaseModel):
     id: str
     dataset: str
     query: str
-    expected_docs: List[str]
+    expected_docs: list[str]
     query_type: str
     top_k: int | None = Field(default=None, ge=1)
 
@@ -35,7 +35,7 @@ class EvalOutputConfig(EvalInputConfig):
     top_k: int
     matched: bool
     num_returned: int
-    returned_docs: List[str]
+    returned_docs: list[str]
     error: str | None
 
 
@@ -43,7 +43,7 @@ app = typer.Typer()
 
 
 def _is_matched(
-    query_type: str, expected_docs: List[str], returned_docs: List[str]
+    query_type: str, expected_docs: list[str], returned_docs: list[str]
 ) -> bool:
     """Determine whether a result is a match based on query type.
 
@@ -58,7 +58,7 @@ def _is_matched(
     return any(doc in returned_docs for doc in expected_docs)
 
 
-def load_dataset_json(path: Path) -> List[EvalInputConfig]:
+def load_dataset_json(path: Path) -> list[EvalInputConfig]:
     try:
         file_content = path.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
@@ -151,7 +151,7 @@ def generate_eval_output(
 
 
 def save_eval_output(
-    eval_output: List[EvalOutputConfig],
+    eval_output: list[EvalOutputConfig],
 ) -> None:
     output_dir = Path(__file__).parent
     results_json = output_dir / "results.json"
@@ -168,7 +168,7 @@ def save_eval_output(
         raise ValueError(f"Error saving results: {err}")
 
 
-def print_eval_output(default_top_k: int, eval_output: List[EvalOutputConfig]) -> None:
+def print_eval_output(default_top_k: int, eval_output: list[EvalOutputConfig]) -> None:
     output_dir = Path(__file__).parent
     results_json = output_dir / "results.json"
     results_csv = output_dir / "results.csv"
