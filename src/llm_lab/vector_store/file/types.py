@@ -2,6 +2,15 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from llm_lab.vector_store.types import IndexedChunk
+
+
+class IndexFile(BaseModel):
+    index_id: str = Field(description="A unique identifier for this index file.")
+    chunks: list[IndexedChunk] = Field(
+        description="A list of indexed chunks contained in this file."
+    )
+
 
 class ManifestIndexFile(BaseModel):
     index_id: str = Field(
@@ -12,21 +21,6 @@ class ManifestIndexFile(BaseModel):
     )
     num_chunks: int = Field(
         description="Number of chunks contained within this index file."
-    )
-
-
-class ManifestDocument(BaseModel):
-    doc_id: str = Field(
-        description="A stable, unique identifier for the document (e.g., filename or UUID)."
-    )
-    doc_path: str = Field(
-        description="The absolute or relative path to the document on disk at the time of indexing."
-    )
-    hash: str = Field(
-        description="The content hash of the document (e.g., SHA256) at the time of indexing, used for change detection."
-    )
-    last_indexed_at: datetime = Field(
-        description="The timestamp when this document was last indexed."
     )
 
 
@@ -48,18 +42,4 @@ class ManifestFile(BaseModel):
     )
     index_files: list[ManifestIndexFile] = Field(
         description="A list of index file entries, each detailing an index shard."
-    )
-    documents: list[ManifestDocument] = Field(
-        description="A list of document entries, each detailing an indexed document."
-    )
-
-
-class ChunkingConfig(BaseModel):
-    chunk_size: int = Field(
-        description="The desired chunk size in characters for document processing.",
-        gt=0,
-    )
-    chunk_separator: str = Field(
-        description="The separator string used to delineate chunks.",
-        min_length=1,
     )

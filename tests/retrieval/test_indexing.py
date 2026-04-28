@@ -1,7 +1,7 @@
-import json
 from pathlib import Path
 
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 
 import llm_lab.retrieval.indexing as indexing
 from llm_lab.retrieval.indexing import Indexer, _create_chunks
@@ -49,62 +49,44 @@ class TestChunking:
 
 class TestIndexer:
     def test_indexer_happy_path(
-        self, tmp_path: Path, monkeypatch, fake_llm_client: FakeLlmClient
+        self, tmp_path: Path, monkeypatch: MonkeyPatch, fake_llm_client: FakeLlmClient
     ) -> None:
-        # Setup: create a fake source directory with a text file
         source_dir = tmp_path / "source"
         source_dir.mkdir()
         file_path = source_dir / "test.md"
-        file_content = "This is a test document. It will be indexed."
-        file_path.write_text(file_content, encoding="utf-8")
-
-        dest_dir = tmp_path / "dest"
+        file_path.write_text(
+            "This is a test document. It will be indexed.", encoding="utf-8"
+        )
 
         monkeypatch.setattr(indexing, "BASE_DIR", tmp_path)
 
-        # Create Indexer instance
         indexer = Indexer(
             source_dir=source_dir,
-            dest_dir=dest_dir,
             chunking_config=ChunkingConfig(chunk_size=50, chunk_separator=". "),
             embedding_model="models/embedding-001",
             dataset="test_dataset",
-            max_chunks_per_index=1000,
         )
 
-        # Run indexing
-        docs_count, chunks_count = indexer.run(fake_llm_client)
+        indexed_chunks, docs_count = indexer.run(fake_llm_client)
         assert docs_count == 1
-        assert chunks_count == 1
-
-        manifest_path = dest_dir / "indexes" / "test_dataset" / "manifest.json"
-        assert manifest_path.exists()
-
-        data = json.loads(manifest_path.read_text())
-        assert data["total_docs"] == 1
-        assert data["total_chunks"] == 1
+        assert len(indexed_chunks) == 1
 
     def test_indexer_no_markdown_files_returns_error(
         self,
         tmp_path: Path,
-        monkeypatch,
+        monkeypatch: MonkeyPatch,
         fake_llm_client: FakeLlmClient,
     ) -> None:
         source_dir = tmp_path / "source"
         source_dir.mkdir()
 
-        dest_dir = tmp_path / "dest"
-
-        # Patch indexing.BASE_DIR to tmp_path
         monkeypatch.setattr(indexing, "BASE_DIR", tmp_path)
 
         indexer = Indexer(
             source_dir=source_dir,
-            dest_dir=dest_dir,
             chunking_config=ChunkingConfig(chunk_size=50, chunk_separator=". "),
             embedding_model="models/embedding-001",
             dataset="test_dataset",
-            max_chunks_per_index=1000,
         )
 
         with pytest.raises(ValueError) as excinfo:

@@ -5,19 +5,19 @@ import time
 from collections import Counter
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Annotated, List
+from typing import Annotated
 
 import typer
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from llm_lab.core.factories import create_llm_client, create_vector_store_client
 from llm_lab.core.rag_service import RagService
 from llm_lab.llm.errors import (
     LlmAuthenticationError,
     LlmError,
     LlmRateLimitError,
 )
-from llm_lab.llm.types import LlmClient
-from llm_lab.naive_rag import create_llm_client
+from llm_lab.retrieval.retriever import Retriever
 
 
 class EvalInputConfig(BaseModel):
@@ -26,7 +26,7 @@ class EvalInputConfig(BaseModel):
     id: str
     dataset: str
     query: str
-    expected_docs: List[str]
+    expected_docs: list[str]
     query_type: str
     top_k: int | None = Field(default=None, ge=1)
 
@@ -35,7 +35,8 @@ class EvalOutputConfig(EvalInputConfig):
     top_k: int
     matched: bool
     num_returned: int
-    returned_docs: List[str]
+    returned_docs: list[str]
+    returned_scores: list[float]
     error: str | None
 
 
@@ -43,7 +44,7 @@ app = typer.Typer()
 
 
 def _is_matched(
-    query_type: str, expected_docs: List[str], returned_docs: List[str]
+    query_type: str, expected_docs: list[str], returned_docs: list[str]
 ) -> bool:
     """Determine whether a result is a match based on query type.
 
@@ -58,11 +59,11 @@ def _is_matched(
     return any(doc in returned_docs for doc in expected_docs)
 
 
-def load_dataset_json(path: Path) -> List[EvalInputConfig]:
+def load_dataset_json(path: Path) -> list[EvalInputConfig]:
     try:
         file_content = path.read_text(encoding="utf-8").strip()
-    except FileNotFoundError:
-        raise ValueError(f"File {path} not found")
+    except FileNotFoundError as err:
+        raise ValueError(f"File {path} not found: {err}") from err
     except OSError as err:
         raise ValueError(f"Failed to read {path}: {err}") from err
     if not file_content:
@@ -92,13 +93,12 @@ def load_dataset_json(path: Path) -> List[EvalInputConfig]:
 
 def generate_eval_output(
     example: EvalInputConfig,
-    client: LlmClient,
+    rag_service: RagService,
     top_k: int,
 ) -> EvalOutputConfig:
-    dataset = example.dataset
-    rag_service = RagService(client, dataset)
     try:
         result = rag_service.answer_question(
+            dataset=example.dataset,
             query=example.query,
             top_k=top_k,
         )
@@ -113,6 +113,7 @@ def generate_eval_output(
             matched=False,
             num_returned=0,
             returned_docs=[],
+            returned_scores=[],
             top_k=top_k,
             error="rate_limit",
         )
@@ -130,11 +131,13 @@ def generate_eval_output(
             matched=False,
             num_returned=0,
             returned_docs=[],
+            returned_scores=[],
             top_k=top_k,
             error=e.__class__.__name__,
         )
 
-    doc_paths = [chunk.doc_path for chunk in result.chunks]
+    doc_paths = [sc.indexed_chunk.doc_path for sc in result.chunks]
+    scores = [round(sc.score, 4) for sc in result.chunks]
     matched = _is_matched(example.query_type, example.expected_docs, doc_paths)
     return EvalOutputConfig(
         id=example.id,
@@ -145,13 +148,14 @@ def generate_eval_output(
         matched=matched,
         num_returned=len(doc_paths),
         returned_docs=doc_paths,
+        returned_scores=scores,
         top_k=top_k,
         error=None,
     )
 
 
 def save_eval_output(
-    eval_output: List[EvalOutputConfig],
+    eval_output: list[EvalOutputConfig],
 ) -> None:
     output_dir = Path(__file__).parent
     results_json = output_dir / "results.json"
@@ -159,16 +163,16 @@ def save_eval_output(
     try:
         data = [output.model_dump() for output in eval_output]
         results_json.write_text(json.dumps(data, indent=2), encoding="utf-8")
-        field_names = sorted({k for r in data for k in r.keys()})
+        field_names = sorted({k for r in data for k in r})
         with open(results_csv, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=field_names, extrasaction="ignore")
             w.writeheader()
             w.writerows(data)
     except Exception as err:
-        raise ValueError(f"Error saving results: {err}")
+        raise ValueError(f"Error saving results: {err}") from err
 
 
-def print_eval_output(default_top_k: int, eval_output: List[EvalOutputConfig]) -> None:
+def print_eval_output(default_top_k: int, eval_output: list[EvalOutputConfig]) -> None:
     output_dir = Path(__file__).parent
     results_json = output_dir / "results.json"
     results_csv = output_dir / "results.csv"
@@ -261,7 +265,7 @@ def run_eval(
     dataset_file: Annotated[Path, typer.Option(help="Path to dataset file")] = Path(
         "dataset.jsonl"
     ),
-):
+) -> None:
     if top_k < 1:
         raise ValueError("top_k must be >= 1")
 
@@ -270,11 +274,15 @@ def run_eval(
     if not input_file.is_absolute():
         input_file = Path(__file__).parent / input_file
     eval_input_config = load_dataset_json(input_file)
+    llm_client = create_llm_client()
+    rag_service = RagService(
+        llm_client,
+        Retriever(llm_client, create_vector_store_client()),
+    )
     eval_output_config = []
-    client = create_llm_client()
     for config in eval_input_config:
         example_top_k = config.top_k if config.top_k is not None else top_k
-        eval_output = generate_eval_output(config, client, example_top_k)
+        eval_output = generate_eval_output(config, rag_service, example_top_k)
         eval_output_config.append(eval_output)
         time.sleep(20)
 
@@ -282,7 +290,7 @@ def run_eval(
     print_eval_output(top_k, eval_output_config)
 
 
-def main():
+def main() -> int:
     try:
         app()
     except (ValueError, OSError) as err:

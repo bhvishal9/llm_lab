@@ -1,3 +1,6 @@
+from collections.abc import Generator
+from typing import Any
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -6,7 +9,7 @@ from tests.fakes import FakeLlmClient, NoCallLlmClient
 
 
 @pytest.fixture(scope="function")
-def client() -> TestClient:
+def client() -> Generator[TestClient, Any]:
     """
     A fixture to provide a FastAPI TestClient for API testing.
     """

@@ -2,46 +2,54 @@ import json
 import logging
 import uuid
 
+from _pytest.logging import LogCaptureFixture
+from _pytest.monkeypatch import MonkeyPatch
 from fastapi.testclient import TestClient
 
 from llm_lab.core.rag_service import QueryResult, RagService
 from llm_lab.llm.errors import LlmUnavailableError
-from llm_lab.retrieval.indexing import IndexedChunk
 from llm_lab.retrieval.retriever import Retriever
+from llm_lab.vector_store.types import IndexedChunk, ScoredChunk
 
 
 class TestQueryApi:
-    def test_query_happy_path(self, client: TestClient, monkeypatch) -> None:
+    def test_query_happy_path(
+        self, client: TestClient, monkeypatch: MonkeyPatch
+    ) -> None:
         # 1) Fake chunks: what we expect the service to return
         fake_chunks = [
-            IndexedChunk(
-                text="Chunk about Kubernetes pods",
-                source="assets/docs/kubernetes_intro.md",
-                embedding=[1.0, 0.0],
-                chunk_id=0,
-                doc_path="assets/docs/kubernetes_intro.md",
+            ScoredChunk(
+                score=0.95,
+                indexed_chunk=IndexedChunk(
+                    text="Chunk about Kubernetes pods",
+                    source="assets/docs/kubernetes_intro.md",
+                    embedding=[1.0, 0.0],
+                    chunk_id=0,
+                    doc_path="assets/docs/kubernetes_intro.md",
+                ),
             ),
-            IndexedChunk(
-                text="Some other chunk",
-                source="assets/docs/other.md",
-                embedding=[0.0, 1.0],
-                chunk_id=1,
-                doc_path="assets/docs/other.md",
+            ScoredChunk(
+                score=0.80,
+                indexed_chunk=IndexedChunk(
+                    text="Some other chunk",
+                    source="assets/docs/other.md",
+                    embedding=[0.0, 1.0],
+                    chunk_id=1,
+                    doc_path="assets/docs/other.md",
+                ),
             ),
         ]
 
         # 2) Fake RagService.answer_question so we don't touch real LLM / index
-        def fake_answer_question(self, query: str, top_k: int):
-            # optional: assert about inputs if you want
+        def fake_answer_question(
+            self: RagService, dataset: str, query: str, top_k: int
+        ) -> QueryResult:
             assert query == "What is a Kubernetes pod?"
             assert top_k == 1
-            candidate_k = 3
-            num_chunks_returned = len(fake_chunks)
+            assert dataset == "test_dataset"
             return QueryResult(
                 answer="fake answer from LLM",
                 chunks=fake_chunks[:top_k],
-                candidate_k=candidate_k,
-                num_chunks_returned=num_chunks_returned,
             )
 
         # 3) Patch env so Settings() doesn't explode
@@ -58,9 +66,9 @@ class TestQueryApi:
         response = client.post(
             "/query",
             json={
+                "dataset": "test_dataset",
                 "query": "What is a Kubernetes pod?",
                 "top_k": 1,
-                "dataset": "test_dataset",
             },
         )
 
@@ -78,7 +86,7 @@ class TestQueryApi:
         assert first_source["chunk_id"] == 0
 
     def test_query_invalid_query_returns_400(
-        self, client: TestClient, monkeypatch
+        self, client: TestClient, monkeypatch: MonkeyPatch
     ) -> None:
         payload = {"query": "", "top_k": 1, "dataset": "test_dataset"}
         monkeypatch.setenv("LLM_API_KEY", "dummy-key")
@@ -87,7 +95,7 @@ class TestQueryApi:
         assert response.json() == {"error": "Question must be a non-empty string"}
 
     def test_query_invalid_top_k_returns_400(
-        self, client: TestClient, monkeypatch
+        self, client: TestClient, monkeypatch: MonkeyPatch
     ) -> None:
         payload = {"query": "Test Query", "top_k": 0, "dataset": "test_dataset"}
         monkeypatch.setenv("LLM_API_KEY", "dummy-key")
@@ -96,27 +104,29 @@ class TestQueryApi:
         assert response.json() == {"error": "top_k must be between 1 and 10"}
 
     def test_query_missing_index_returns_500(
-        self, client: TestClient, monkeypatch
+        self, client: TestClient, monkeypatch: MonkeyPatch
     ) -> None:
         payload = {"query": "Test Query", "top_k": 1, "dataset": "test_dataset"}
 
-        def fake_load_indexed_chunks(self):
-            raise FileNotFoundError(
-                "File whatever not found, make sure to run the index command first"
+        def fake_search(
+            self: Retriever, dataset: str, query: str, top_k: int
+        ) -> list[ScoredChunk]:
+            raise ValueError(
+                "Dataset test_dataset not found, make sure to run the index command first"
             )
 
         monkeypatch.setenv("LLM_API_KEY", "dummy-key")
-        monkeypatch.setattr(Retriever, "load_indexed_chunks", fake_load_indexed_chunks)
+        monkeypatch.setattr(Retriever, "search", fake_search)
 
         response = client.post("/query", json=payload)
 
         assert response.status_code == 500
         assert response.json() == {
-            "error": "File whatever not found, make sure to run the index command first"
+            "error": "Dataset test_dataset not found, make sure to run the index command first"
         }
 
     def test_query_llm_unavailable_returns_502(
-        self, client: TestClient, monkeypatch
+        self, client: TestClient, monkeypatch: MonkeyPatch
     ) -> None:
         payload = {"query": "Test Query", "top_k": 1, "dataset": "test_dataset"}
 
@@ -124,9 +134,12 @@ class TestQueryApi:
         monkeypatch.setenv("LLM_API_KEY", "dummy-key")
 
         # Fake RagService.answer_question to simulate an upstream 5xx from the LLM
-        def fake_answer_question(self, query: str, top_k: int):
+        def fake_answer_question(
+            self: RagService, dataset: str, query: str, top_k: int
+        ) -> QueryResult:
             assert query == "Test Query"
             assert top_k == 1
+            assert dataset == "test_dataset"
             raise LlmUnavailableError("Fake client unavailable")
 
         # Patch the method on RagService
@@ -141,39 +154,33 @@ class TestQueryApi:
         assert data["error"] == "Fake client unavailable"
 
     def test_query_log_fields_exists(
-        self, client: TestClient, monkeypatch, caplog
+        self, client: TestClient, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture
     ) -> None:
         caplog.set_level(logging.INFO, logger="llm_lab.api")
         # 1) Fake chunks: what we expect the service to return
         fake_chunks = [
-            IndexedChunk(
-                text="Chunk about Kubernetes pods",
-                source="assets/docs/kubernetes_intro.md",
-                embedding=[1.0, 0.0],
-                chunk_id=0,
-                doc_path="assets/docs/kubernetes_intro.md",
-            ),
-            IndexedChunk(
-                text="Some other chunk",
-                source="assets/docs/other.md",
-                embedding=[0.0, 1.0],
-                chunk_id=1,
-                doc_path="assets/docs/other.md",
+            ScoredChunk(
+                score=0.95,
+                indexed_chunk=IndexedChunk(
+                    text="Chunk about Kubernetes pods",
+                    source="assets/docs/kubernetes_intro.md",
+                    embedding=[1.0, 0.0],
+                    chunk_id=0,
+                    doc_path="assets/docs/kubernetes_intro.md",
+                ),
             ),
         ]
 
         # 2) Fake RagService.answer_question so we don't touch real LLM / index
-        def fake_answer_question(self, query: str, top_k: int):
-            # optional: assert about inputs if you want
+        def fake_answer_question(
+            self: RagService, dataset: str, query: str, top_k: int
+        ) -> QueryResult:
             assert query == "What is a Kubernetes pod?"
             assert top_k == 1
-            candidate_k = 3
-            num_chunks_returned = len(fake_chunks)
+            assert dataset == "test_dataset"
             return QueryResult(
                 answer="fake answer from LLM",
                 chunks=fake_chunks[:top_k],
-                candidate_k=candidate_k,
-                num_chunks_returned=num_chunks_returned,
             )
 
         # 3) Patch env so Settings() doesn't explode
@@ -203,5 +210,3 @@ class TestQueryApi:
         uuid.UUID(logs["request_id"])
         assert logs["top_k"] == 1
         assert logs["dataset"] == "test_dataset"
-        assert logs["num_chunks_returned"] == 2
-        assert logs["candidate_k"] == 3

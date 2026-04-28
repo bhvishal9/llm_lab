@@ -1,13 +1,13 @@
-from typing import List
-
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field
 
-from llm_lab.api.dependencies import get_llm_client
+from llm_lab.api.dependencies import get_llm_client, get_retriever_client
 from llm_lab.api.exceptions import CustomException
 from llm_lab.core.rag_service import RagService
 from llm_lab.llm.types import LlmClient
-from llm_lab.retrieval.types import IndexedChunk
+from llm_lab.observability.context import dataset_context_var, top_k_context_var
+from llm_lab.retrieval.retriever import Retriever
+from llm_lab.vector_store.types import ScoredChunk
 
 
 class QueryRequest(BaseModel):
@@ -25,7 +25,7 @@ class SourceChunk(BaseModel):
 class QueryResponse(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, frozen=True)
     answer: str
-    sources: List[SourceChunk]
+    sources: list[SourceChunk]
 
 
 router = APIRouter(prefix="", tags=["Query"])
@@ -45,33 +45,36 @@ def validate_query_request(request: QueryRequest) -> None:
 
 
 def build_response(
-    top_chunks: list[IndexedChunk],
+    top_chunks: list[ScoredChunk],
     response: str,
 ) -> QueryResponse:
     return QueryResponse(
         answer=response,
         sources=[
-            SourceChunk(source=chunk.source, chunk_id=chunk.chunk_id)
-            for chunk in top_chunks
+            SourceChunk(
+                source=sc.indexed_chunk.source, chunk_id=sc.indexed_chunk.chunk_id
+            )
+            for sc in top_chunks
         ],
     )
 
 
 @router.post("/query")
 async def query(
-    body: QueryRequest, request: Request, client: LlmClient = Depends(get_llm_client)
+    body: QueryRequest,
+    llm_client: LlmClient = Depends(get_llm_client),
+    retriever: Retriever = Depends(get_retriever_client),
 ) -> QueryResponse:
     validate_query_request(body)
-    request.state.dataset = body.dataset
-    request.state.top_k = body.top_k
-    rag = RagService(client=client, dataset=body.dataset)
+    dataset_context_var.set(body.dataset)
+    top_k_context_var.set(body.top_k)
+    rag = RagService(llm_client, retriever)
     try:
         query_result = rag.answer_question(
+            dataset=body.dataset,
             query=body.query,
             top_k=body.top_k,
         )
-        request.state.candidate_k = query_result.candidate_k
-        request.state.num_chunks_returned = query_result.num_chunks_returned
     except (ValueError, FileNotFoundError) as err:
         raise CustomException(status_code=500, message=str(err)) from err
     return build_response(query_result.chunks, query_result.answer)

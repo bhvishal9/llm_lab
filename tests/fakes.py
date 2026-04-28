@@ -1,13 +1,4 @@
-from pathlib import Path
-
-from llm_lab.retrieval.types import ChunkingConfig, IndexedChunk
-from llm_lab.vector_store.types import VectorStoreClient
-
-
-class FakeSettings:
-    def __init__(self, vector_store) -> None:
-        # vector_store can be a VectorStoreType or a bad string for negative tests
-        self.vector_store = vector_store
+from llm_lab.vector_store.types import IndexedChunk, ScoredChunk, VectorStoreClient
 
 
 class FakeLlmClient:
@@ -20,8 +11,6 @@ class FakeLlmClient:
 
 class NoCallLlmClient:
     def embed_text(self, text: str, embedding_model: str | None = None) -> list[float]:
-        # Not really used in this test because we stub Retriever,
-        # but implemented for interface completeness.
         return [1.0, 0.0]
 
     def generate_response(self, prompt: str, model: str | None = None) -> str:
@@ -31,19 +20,22 @@ class NoCallLlmClient:
 
 
 class FakeVectorStoreClient(VectorStoreClient):
-    """Fake implementation of VectorStoreClient that returns no chunks."""
+    """Fake VectorStoreClient that returns a configurable list of ScoredChunks."""
 
-    def index_dataset(
+    def __init__(self, scored_chunks: list[ScoredChunk] | None = None) -> None:
+        self._scored_chunks = scored_chunks or []
+
+    def get_embedding_model(self, dataset: str) -> str:
+        return "fake-embedding-model"
+
+    def store(
         self,
-        source_dir: Path,
-        embedding_model: str,
+        indexed_chunks: list[IndexedChunk],
         dataset: str,
-        max_chunks_per_index: int,
-        chunking_config: ChunkingConfig,
-    ) -> tuple[int, int]:
-        return 0, 0
+        embedding_model: str,
+        docs_count: int,
+    ) -> None:
+        pass
 
-    def query(
-        self, dataset: str, query_text: str, top_k: int
-    ) -> tuple[list[IndexedChunk], int]:
-        return [], 0
+    def query(self, dataset: str, query_embedding: list[float]) -> list[ScoredChunk]:
+        return self._scored_chunks

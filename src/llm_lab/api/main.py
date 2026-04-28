@@ -16,7 +16,9 @@ app = FastAPI(title="llm_lab", version="0.0.1")
 
 
 @app.exception_handler(CustomException)
-async def custom_exception_handler(request: Request, exc: CustomException):
+async def custom_exception_handler(
+    request: Request, exc: CustomException
+) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": exc.message},
@@ -24,7 +26,9 @@ async def custom_exception_handler(request: Request, exc: CustomException):
 
 
 @app.exception_handler(LlmRateLimitError)
-async def llm_rate_limit_exception_handler(request: Request, exc: LlmRateLimitError):
+async def llm_rate_limit_exception_handler(
+    request: Request, exc: LlmRateLimitError
+) -> JSONResponse:
     return JSONResponse(
         status_code=429,
         content={"error": str(exc)},
@@ -34,7 +38,7 @@ async def llm_rate_limit_exception_handler(request: Request, exc: LlmRateLimitEr
 @app.exception_handler(LlmAuthenticationError)
 async def llm_authentication_exception_handler(
     request: Request, exc: LlmAuthenticationError
-):
+) -> JSONResponse:
     return JSONResponse(
         status_code=502,
         content={"error": str(exc)},
@@ -44,7 +48,7 @@ async def llm_authentication_exception_handler(
 @app.exception_handler(LlmInvalidRequestError)
 async def llm_invalid_request_exception_handler(
     request: Request, exc: LlmInvalidRequestError
-):
+) -> JSONResponse:
     return JSONResponse(
         status_code=502,
         content={"error": str(exc)},
@@ -52,7 +56,9 @@ async def llm_invalid_request_exception_handler(
 
 
 @app.exception_handler(LlmUnavailableError)
-async def llm_unavailable_exception_handler(request: Request, exc: LlmUnavailableError):
+async def llm_unavailable_exception_handler(
+    request: Request, exc: LlmUnavailableError
+) -> JSONResponse:
     return JSONResponse(
         status_code=502,
         content={"error": str(exc)},
@@ -60,7 +66,9 @@ async def llm_unavailable_exception_handler(request: Request, exc: LlmUnavailabl
 
 
 @app.exception_handler(LlmError)
-async def llm_generic_error_exception_handler(request: Request, exc: LlmError):
+async def llm_generic_error_exception_handler(
+    request: Request, exc: LlmError
+) -> JSONResponse:
     return JSONResponse(
         status_code=502,
         content={"error": str(exc)},

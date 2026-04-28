@@ -1,3 +1,5 @@
+import typing
+
 from google import genai
 from google.genai import types
 from google.genai.errors import ClientError
@@ -36,24 +38,32 @@ class GeminiClient(LlmClient):
         self.embedding_model = embedding_model
 
     def embed_text(self, text: str, embedding_model: str | None = None) -> list[float]:
-        """Embed the given text. If embedding_model is provided, use that; otherwise use the client’s default"""
+        """Embed the given text. If embedding_model is provided, use that; otherwise use the client's default"""
         try:
             embedding = self.client.models.embed_content(
                 model=embedding_model or self.embedding_model,
                 contents=text,
                 config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY"),
             )
-            return embedding.embeddings[0].values
+            embedding_value = embedding.embeddings[0].values
         except ClientError as err:
             raise _map_gemini_error(err) from err
+        if embedding_value is None:
+            raise LlmError("Received empty embedding from Gemini")
+        else:
+            return typing.cast(list[float], embedding_value)
 
     def generate_response(self, prompt: str, model: str | None = None) -> str:
-        """Generate a response for the given prompt. If model is provided, use that; otherwise use the client’s default"""
+        """Generate a response for the given prompt. If model is provided, use that; otherwise use the client's default"""
         try:
             response = self.client.models.generate_content(
                 model=model or self.model,
                 contents=prompt,
             )
-            return response.text
+            response_text = response.text
         except ClientError as err:
             raise _map_gemini_error(err) from err
+        if response_text is None:
+            raise LlmError("Received empty response from Gemini")
+        else:
+            return typing.cast(str, response_text)
