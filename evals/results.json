@@ -8,9 +8,14 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7508
+    ],
     "error": null
   },
   {
@@ -22,9 +27,18 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.8529,
+      0.7907,
+      0.7294
+    ],
     "error": null
   },
   {
@@ -36,9 +50,18 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.8339,
+      0.7836,
+      0.722
+    ],
     "error": null
   },
   {
@@ -50,9 +73,14 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7567
+    ],
     "error": null
   },
   {
@@ -65,9 +93,14 @@
     "query_type": "factual",
     "top_k": 3,
     "matched": true,
-    "num_returned": 1,
+    "num_returned": 2,
     "returned_docs": [
-      "assets/docs/duck_technology.md"
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.8074,
+      0.7514
     ],
     "error": null
   },
@@ -81,9 +114,14 @@
     "query_type": "factual",
     "top_k": 3,
     "matched": true,
-    "num_returned": 1,
+    "num_returned": 2,
     "returned_docs": [
-      "assets/docs/the_duck_wars.md"
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.8252,
+      0.7436
     ],
     "error": null
   },
@@ -97,9 +135,16 @@
     "query_type": "factual",
     "top_k": 3,
     "matched": true,
-    "num_returned": 1,
+    "num_returned": 3,
     "returned_docs": [
-      "assets/docs/the_duck_wars.md"
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.849,
+      0.7694,
+      0.7287
     ],
     "error": null
   },
@@ -112,9 +157,16 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.77,
+      0.7357
+    ],
     "error": null
   },
   {
@@ -129,6 +181,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -140,9 +193,16 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7205,
+      0.7111
+    ],
     "error": null
   },
   {
@@ -154,9 +214,16 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.8079,
+      0.7006
+    ],
     "error": null
   },
   {
@@ -173,6 +240,9 @@
     "returned_docs": [
       "assets/docs/the_duck_wars.md"
     ],
+    "returned_scores": [
+      0.801
+    ],
     "error": null
   },
   {
@@ -187,6 +257,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -201,6 +272,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -212,9 +284,16 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.7679,
+      0.7244
+    ],
     "error": null
   },
   {
@@ -226,9 +305,14 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7023
+    ],
     "error": null
   },
   {
@@ -243,6 +327,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -257,6 +342,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -268,9 +354,16 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7597,
+      0.7366
+    ],
     "error": null
   },
   {
@@ -285,6 +378,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -296,9 +390,14 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7291
+    ],
     "error": null
   },
   {
@@ -313,6 +412,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -327,6 +427,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -341,6 +442,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -355,6 +457,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -369,6 +472,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -383,6 +487,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -394,9 +499,14 @@
     ],
     "query_type": "factual",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7063
+    ],
     "error": null
   },
   {
@@ -411,6 +521,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -425,6 +536,7 @@
     "matched": false,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   },
   {
@@ -438,8 +550,15 @@
     "query_type": "multi_hop",
     "top_k": 3,
     "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.7747,
+      0.7184
+    ],
     "error": null
   },
   {
@@ -453,8 +572,13 @@
     "query_type": "multi_hop",
     "top_k": 3,
     "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7513
+    ],
     "error": null
   },
   {
@@ -467,9 +591,16 @@
     ],
     "query_type": "multi_hop",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7183,
+      0.7089
+    ],
     "error": null
   },
   {
@@ -482,9 +613,18 @@
     ],
     "query_type": "multi_hop",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7839,
+      0.7495,
+      0.7095
+    ],
     "error": null
   },
   {
@@ -497,10 +637,15 @@
     ],
     "query_type": "multi_hop",
     "top_k": 3,
-    "matched": false,
-    "num_returned": 1,
+    "matched": true,
+    "num_returned": 2,
     "returned_docs": [
-      "assets/docs/duck_technology.md"
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.8432,
+      0.784
     ],
     "error": null
   },
@@ -511,9 +656,18 @@
     "expected_docs": [],
     "query_type": "out_of_scope",
     "top_k": 3,
-    "matched": true,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": false,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.748,
+      0.7188,
+      0.7102
+    ],
     "error": null
   },
   {
@@ -523,9 +677,16 @@
     "expected_docs": [],
     "query_type": "out_of_scope",
     "top_k": 3,
-    "matched": true,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": false,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.732,
+      0.7319
+    ],
     "error": null
   },
   {
@@ -535,9 +696,16 @@
     "expected_docs": [],
     "query_type": "out_of_scope",
     "top_k": 3,
-    "matched": true,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": false,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.7351,
+      0.7339
+    ],
     "error": null
   },
   {
@@ -547,9 +715,16 @@
     "expected_docs": [],
     "query_type": "out_of_scope",
     "top_k": 3,
-    "matched": true,
-    "num_returned": 0,
-    "returned_docs": [],
+    "matched": false,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.8144,
+      0.7321
+    ],
     "error": null
   },
   {
@@ -562,6 +737,7 @@
     "matched": true,
     "num_returned": 0,
     "returned_docs": [],
+    "returned_scores": [],
     "error": null
   }
 ]
