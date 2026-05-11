@@ -1,0 +1,52 @@
+name: Eval Regression Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  regression-gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Restore index cache
+        id: cache-index
+        uses: actions/cache@v4
+        with:
+          path: dest/
+          key: index-${{ hashFiles('assets/docs/**') }}
+
+      - name: Build index
+        if: steps.cache-index.outputs.cache-hit != 'true'
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: uv run python src/llm_lab/naive_rag.py index --dataset ducks
+
+      - name: Run eval
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: uv run python evals/run_eval.py
+
+      - name: Check regression
+        run: uv run python evals/check_regression.py
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ github.sha }}
+          path: |
+            evals/results.json
+            evals/results.csv

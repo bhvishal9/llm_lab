@@ -1,0 +1,743 @@
+[
+  {
+    "id": "q1_bubble_shield",
+    "dataset": "ducks",
+    "query": "What is the Bubble Shield used by the Ducks and how does it work?",
+    "expected_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7508
+    ],
+    "error": null
+  },
+  {
+    "id": "q2_hydro_thrusters",
+    "dataset": "ducks",
+    "query": "How do Duck starships move through space and what makes their propulsion unusual?",
+    "expected_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.8529,
+      0.7907,
+      0.7294
+    ],
+    "error": null
+  },
+  {
+    "id": "q3_squeak_drive",
+    "dataset": "ducks",
+    "query": "What is the Squeak Drive and what role does it play in Duck starship maneuverability?",
+    "expected_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.8339,
+      0.7836,
+      0.722
+    ],
+    "error": null
+  },
+  {
+    "id": "q4_wave_generator",
+    "dataset": "ducks",
+    "query": "What is the Wave Generator and how is it used as an offensive technology by the Ducks?",
+    "expected_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7567
+    ],
+    "error": null
+  },
+  {
+    "id": "q5_duck_weapons",
+    "dataset": "ducks",
+    "query": "Describe the main offensive and defensive technologies used by the Quack-Federa-tion.",
+    "expected_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.8074,
+      0.7514
+    ],
+    "error": null
+  },
+  {
+    "id": "q6_duck_wars_enemy",
+    "dataset": "ducks",
+    "query": "Which civilization did the Quack-Federa-tion fight during the Great Duck Wars?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.8252,
+      0.7436
+    ],
+    "error": null
+  },
+  {
+    "id": "q7_duck_wars_trigger",
+    "dataset": "ducks",
+    "query": "How did the Great Duck Wars begin in the Celestial Bathtub nebula?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.849,
+      0.7694,
+      0.7287
+    ],
+    "error": null
+  },
+  {
+    "id": "q8_drainer_weapon",
+    "dataset": "ducks",
+    "query": "What was the 'Drainer' weapon used by the Spong and what threat did it pose to Duck ships?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.77,
+      0.7357
+    ],
+    "error": null
+  },
+  {
+    "id": "q9_battle_loofah_line",
+    "dataset": "ducks",
+    "query": "What happened at the Battle of the Loofah Line and why was it a turning point?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q10_waddles_wave",
+    "dataset": "ducks",
+    "query": "Explain the 'Waddles Wave' and how Commodore Waddles used it in the war.",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7205,
+      0.7111
+    ],
+    "error": null
+  },
+  {
+    "id": "q11_suds_admiral",
+    "dataset": "ducks",
+    "query": "Who was Admiral Suds and what was his role in the conflict with the Ducks?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.8079,
+      0.7006
+    ],
+    "error": null
+  },
+  {
+    "id": "q12_war_outcome",
+    "dataset": "ducks",
+    "query": "How did the Great Duck Wars end and what was the outcome for the Absorbant Empire of Spong?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.801
+    ],
+    "error": null
+  },
+  {
+    "id": "q13_soapstone",
+    "dataset": "ducks",
+    "query": "What is the planet Soapstone like and what resources does it contain?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q14_foam_giant",
+    "dataset": "ducks",
+    "query": "Describe the Foam Giant Suds-Alpha-2 and why it is difficult to explore.",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q15_whirlpoolia",
+    "dataset": "ducks",
+    "query": "What makes the planet Whirlpoolia unique, and where is the Duck outpost located?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.7679,
+      0.7244
+    ],
+    "error": null
+  },
+  {
+    "id": "q16_drain_stopper",
+    "dataset": "ducks",
+    "query": "What is known about the planetoid called the Drain Stopper and its properties?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7023
+    ],
+    "error": null
+  },
+  {
+    "id": "q17_exfolia",
+    "dataset": "ducks",
+    "query": "What kind of world is Exfolia, and what is special about its sands?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q18_bristle",
+    "dataset": "ducks",
+    "query": "Describe the planet Bristle and how its flora behaves towards visitors.",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q19_latheria",
+    "dataset": "ducks",
+    "query": "What kind of world is Latheria and why is it important to the Quack-Federa-tion?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7597,
+      0.7366
+    ],
+    "error": null
+  },
+  {
+    "id": "q20_the_bar_asteroid",
+    "dataset": "ducks",
+    "query": "What is the Bar, and how does it affect Latheria's oceans?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q21_elastos",
+    "dataset": "ducks",
+    "query": "What are the main characteristics of the planet Elastos in the Rubber Rim?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7291
+    ],
+    "error": null
+  },
+  {
+    "id": "q22_squeak_minor",
+    "dataset": "ducks",
+    "query": "Why does movement on Squeak Minor generate constant squeaking sounds?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q23_isoprene",
+    "dataset": "ducks",
+    "query": "What is Isoprene and why is it important in Duck history?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q24_deluge",
+    "dataset": "ducks",
+    "query": "Describe the planet Deluge and its main characteristics.",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q25_droplet_planetoid",
+    "dataset": "ducks",
+    "query": "What is special about the planetoid Droplet that orbits Deluge?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q26_nopul_prime",
+    "dataset": "ducks",
+    "query": "What kind of world is Nopul-Prime and why is it notable despite being uninteresting?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q27_voidfish_maw",
+    "dataset": "ducks",
+    "query": "What is the Voidfish's Maw and why is it dangerous?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q28_perfuma",
+    "dataset": "ducks",
+    "query": "What makes the planet Perfuma unique and how do the Ducks use it?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7063
+    ],
+    "error": null
+  },
+  {
+    "id": "q29_mistral",
+    "dataset": "ducks",
+    "query": "What is the atmosphere of Mistral like and what visual effect does it create?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q30_wave_rider",
+    "dataset": "ducks",
+    "query": "Describe life on Wave-Rider and how its inhabitants use the planet's wave patterns.",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "query_type": "factual",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  },
+  {
+    "id": "q31_squeak_drive_origin",
+    "dataset": "ducks",
+    "query": "Where was the natural phenomenon that inspired the Squeak Drive first observed, and how was it adapted into Duck propulsion technology?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "multi_hop",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.7747,
+      0.7184
+    ],
+    "error": null
+  },
+  {
+    "id": "q32_waddles_wave_tech",
+    "dataset": "ducks",
+    "query": "What specific technology did Commodore Waddles use to create the Waddles Wave, and what was that technology originally designed to do?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "multi_hop",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 1,
+    "returned_docs": [
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.7513
+    ],
+    "error": null
+  },
+  {
+    "id": "q33_loofah_line_geography_and_battle",
+    "dataset": "ducks",
+    "query": "What kinds of planets and materials are found in the Loofah Line region, and why did those properties make it devastating for the Spong fleet?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "query_type": "multi_hop",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7183,
+      0.7089
+    ],
+    "error": null
+  },
+  {
+    "id": "q34_elastos_starship_construction",
+    "dataset": "ducks",
+    "query": "What material does the Quack-Federa-tion harvest from Elastos, and how does Duck starship construction technology make use of flexible materials?",
+    "expected_docs": [
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "multi_hop",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md"
+    ],
+    "returned_scores": [
+      0.7839,
+      0.7495,
+      0.7095
+    ],
+    "error": null
+  },
+  {
+    "id": "q35_duck_maneuverability_in_wars",
+    "dataset": "ducks",
+    "query": "What propulsion advantage gave Duck ships their maneuverability edge in the Great Duck Wars, and how does that technology work?",
+    "expected_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "query_type": "multi_hop",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/duck_technology.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.8432,
+      0.784
+    ],
+    "error": null
+  },
+  {
+    "id": "q36_duck_population",
+    "dataset": "ducks",
+    "query": "What is the total population of the Quack-Federa-tion across all its colony worlds?",
+    "expected_docs": [],
+    "query_type": "out_of_scope",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 3,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.748,
+      0.7188,
+      0.7102
+    ],
+    "error": null
+  },
+  {
+    "id": "q37_duck_currency",
+    "dataset": "ducks",
+    "query": "What currency do the Ducks use for trade between planets?",
+    "expected_docs": [],
+    "query_type": "out_of_scope",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.732,
+      0.7319
+    ],
+    "error": null
+  },
+  {
+    "id": "q38_duck_lifespan",
+    "dataset": "ducks",
+    "query": "What is the average lifespan of a Duck, and how does it compare to other species in the Celestial Bathtub?",
+    "expected_docs": [],
+    "query_type": "out_of_scope",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/galactic_gazetteer.md",
+      "assets/docs/the_duck_wars.md"
+    ],
+    "returned_scores": [
+      0.7351,
+      0.7339
+    ],
+    "error": null
+  },
+  {
+    "id": "q39_duck_wars_casualties",
+    "dataset": "ducks",
+    "query": "How many ships and soldiers did the Quack-Federa-tion lose during the Great Duck Wars?",
+    "expected_docs": [],
+    "query_type": "out_of_scope",
+    "top_k": 3,
+    "matched": false,
+    "num_returned": 2,
+    "returned_docs": [
+      "assets/docs/the_duck_wars.md",
+      "assets/docs/duck_technology.md"
+    ],
+    "returned_scores": [
+      0.8144,
+      0.7321
+    ],
+    "error": null
+  },
+  {
+    "id": "q40_spong_homeworld",
+    "dataset": "ducks",
+    "query": "Where is the homeworld of the Spong civilization and what is it like?",
+    "expected_docs": [],
+    "query_type": "out_of_scope",
+    "top_k": 3,
+    "matched": true,
+    "num_returned": 0,
+    "returned_docs": [],
+    "returned_scores": [],
+    "error": null
+  }
+]
