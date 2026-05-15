@@ -12,6 +12,7 @@ class VectorStoreType(enum.StrEnum):
     """Vector store types."""
 
     FILE = "file"
+    QDRANT = "qdrant"
 
 
 class Settings(BaseSettings):
@@ -32,7 +33,7 @@ class Settings(BaseSettings):
         default=DEFAULT_EMBEDDING_MODEL_NAME,
     )
     vector_store: VectorStoreType = Field(
-        default=VectorStoreType.FILE,
+        default=VectorStoreType.QDRANT,
         validation_alias="VECTOR_STORE",
         description="Vector store to use.",
     )
